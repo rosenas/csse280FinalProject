@@ -1,0 +1,21 @@
+.my-players-container{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    row-gap: 50px;
+    margin-top: 25px;
+    
+}
+.player{
+    width: auto; 
+    color: black;
+    background-color: grey;
+    padding: 15px;  
+    border-radius: 40px;
+}
+
+#myTeam{
+    text-align: center;
+}
+
