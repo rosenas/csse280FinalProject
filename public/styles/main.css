@@ -10,3 +10,7 @@ body {
 .page-container {
     margin-top: 75px;
 }
+
+h1 {
+    margin: auto;
+}
