@@ -10,3 +10,19 @@ body {
 .page-container {
     margin-top: 75px;
 }
+
+.my-player-container{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+}
+.player{
+    width: auto; 
+    color: black;
+    background-color: grey;
+}
+
+#myTeam{
+    text-align: center;
+}

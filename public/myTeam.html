@@ -19,18 +19,23 @@
         <i class="material-icons">more_vert</i>
       </button>
       <div class="dropdown-menu dropdown-menu-right" style="left:-128px">
-        <button class="dropdown-item" type="button" onclick="window.location.href='/myTeam.html'"><i
+        <button class="dropdown-item" type="button" data-toggle="modal" data-target="#editQuoteDialog"><i
             class="material-icons"></i>&nbsp;&nbsp;&nbsp;My Team</button>
         <button class="dropdown-item" type="button" data-toggle="modal" data-target="#deleteQuoteDialog"><i
             class="material-icons"></i>&nbsp;&nbsp;&nbsp;Add Players</button>
       </div>
     </div>
   </nav>
-  <div id="mainPage" class="container page-container">
-    <h1>Welcome to IM Fantasy Football</h1>
-    <h2>This is our home page</h2>
-    <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Reiciendis animi laudantium quas! Et nemo vel tenetur,
-      soluta sint impedit odit facere eligendi! Ad perspiciatis quod quasi voluptatum omnis, est rerum.</p>
+  <div id="myTeamPage" class="container page-container">
+    <div class="my-players-container">
+        <h1 id="myTeam">My Team</h1> 
+        <div class="player">
+            <h1>Ari Rosen</h1>
+        </div>
+        <div class="player">
+            <h1>Will Hawkins</h1>
+        </div>
+    </div>
   </div>
   <script src="scripts/jquery.min.js"></script>
   <script src="scripts/popper.js"></script>
