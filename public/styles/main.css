@@ -11,9 +11,6 @@ body {
     margin-top: 75px;
 }
 
-h1 {
-    margin: auto;
-}
 .my-player-container{
     display: flex;
     flex-direction: column;

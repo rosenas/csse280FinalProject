@@ -1,0 +1,17 @@
+body {
+    background: #DDDDDD;
+}
+
+.navbar {
+    background-color: #800000;
+    color: white;
+}
+
+.page-container {
+    margin-top: 175px;
+}
+
+.btn-outline-secondary.custom-file-control:before, .btn.btn-outline-primary {
+    background-color: white;
+    color: #800000;
+}
