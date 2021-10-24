@@ -38,6 +38,10 @@ rhit.main = function () {
 	$("#toAddPlayers").click((event) => {
 		window.location.href = "./addPlayers.html"
 	})
+
+	$(".details").click((event) => {
+		window.location.href = "./details.html"
+	})
 };
 
 rhit.main();

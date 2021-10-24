@@ -1,0 +1,31 @@
+body {
+    background: #DDDDDD;
+}
+
+.navbar {
+    background-color: #800000;
+    color: white;
+}
+
+.page-container {
+    margin-top: 75px;
+}
+
+#topText {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+#detailsDiv{
+    width: auto;
+    background-color: grey;
+    height: 200px;
+}
+
+#detailsDiv>div{
+    text-align: center;
+}
+
+#header>div{
+    text-align: center;
+}
