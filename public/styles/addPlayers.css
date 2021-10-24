@@ -1,33 +1,25 @@
-body {
-    background: #DDDDDD;
-}
-
-.navbar {
-    background-color: #800000;
-    color: white;
-}
-
-.page-container {
-    margin-top: 75px;
-}
-
-.my-player-container{
+.my-players-container{
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
     justify-content: flex-start;
+    row-gap: 50px;
+    margin-top: 25px;
+    
 }
-
 .player{
     width: auto; 
     color: black;
     background-color: grey;
+    padding: 15px;  
+    border-radius: 40px;
 }
 
-#myTeam{
+#addPlayers {
     text-align: center;
 }
 
-h1 {
-    margin: auto;
+.add, .details{
+    background-color: #800000;
+    color: white;
 }
