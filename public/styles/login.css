@@ -11,7 +11,7 @@ body {
     margin-top: 175px;
 }
 
-.btn-outline-secondary.custom-file-control:before, .btn.btn-outline-primary {
+.btn-outline-secondary, .btn.btn-outline-primary {
     background-color: white;
     color: #800000;
 }
