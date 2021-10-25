@@ -11,7 +11,18 @@ body {
     margin-top: 175px;
 }
 
-.btn-outline-secondary, .btn.btn-outline-primary {
-    background-color: white;
-    color: #800000;
+#rosefireButton {
+    display: block;
+    margin: 250px auto 0;
+    color: white;
+    background: #800000;
+    font-size: 1.1em;
+    padding: 10px 30px;
+    border-radius: 5px;
 }
+
+/* img {
+    display: block;
+    margin: auto;
+    width: 25%;
+} */
