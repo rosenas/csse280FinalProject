@@ -1,0 +1,25 @@
+{
+  "name": "csse280FinalProject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.14"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "nodemon ./public/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rosenas/csse280FinalProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rosenas/csse280FinalProject/issues"
+  },
+  "homepage": "https://github.com/rosenas/csse280FinalProject#readme"
+}
