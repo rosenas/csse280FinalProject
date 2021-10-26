@@ -34,10 +34,18 @@ rhit.main = function () {
 
 	$("#toMyTeam").click((event) => {
 		window.location.href = "./myTeam.html"
-	})
+	});
 	$("#toAddPlayers").click((event) => {
 		window.location.href = "./addPlayers.html"
-	})
+	});
+
+	$("#toSignOut").click((event) => {
+		window.location.href = "./login.html"
+	});
+
+	$("#toSettings").click(((event) => {
+		window.location.href = "./settings.html"
+	}))
 
 	$(".details").click((event) => {
 		window.location.href = "./details.html"

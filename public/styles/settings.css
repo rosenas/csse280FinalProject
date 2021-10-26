@@ -15,18 +15,10 @@ h1 {
     text-align: center;
 }
 
-#teamLinkHolder {
-    margin-top: 1em;
-    margin-bottom: 0.5em;
-    font-size: 2rem;
+.info-holder {
+    border: 2px solid black;
 }
 
-#signOutButton {
-    margin-top: 20px;
-    color: black;
-    font-size: 2rem;
+p {
+    padding: auto;
 }
-
-/* .form-control {
-    width: 30%;
-} */
