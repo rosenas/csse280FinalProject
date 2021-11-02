@@ -12,10 +12,22 @@ var rhit = rhit || {};
 /** globals */
 rhit.variableName = "";
 
+rhit.FB_COLLECTION_PLAYERS = "Players";
+rhit.FB_COLLECTION_USERS = "Users";
+
 /** function and class syntax examples */
 rhit.functionName = function () {
 	/** function body */
 };
+
+
+//from video 
+function htmlToElement(html) {
+	var template = document.createElement('template');
+	html = html.trim();
+	template.innerHTML = html;
+	return template.content.firstChild;
+}
 
 rhit.LoginPageController = class {
 	constructor() {
@@ -83,6 +95,137 @@ rhit.initializePage = function () {
 	if (document.querySelector("#loginPage")) {
 		new rhit.LoginPageController();
 	}
+	if(document.querySelector("#addPlayersPage")){
+		rhit.FbAddPlayersManager = new rhit.FbAddPlayersManager();
+		new rhit.addPlayersPageController();
+	}
+}
+
+rhit.addPlayersPageController = class{
+	constructor(){
+		console.log("created AddPlayersPageController");
+
+		rhit.FbAddPlayersManager.beginListening(this.updateList.bind(this));
+		let t = new rhit.FbMyTeamManager("RZJSG2Hq8jc21LNVEoKTedOuR3h2");
+		t.beginListening(this.updateList.bind(this));
+		console.log(t.team);
+	}
+
+	_createCard(player){
+		console.log('player :>> ', player);
+
+		return htmlToElement(`
+		<div class="player">
+        <div>
+          <h1>${player.name}</h1>
+          <p>${player.team}</p>
+        </div>
+        <div>
+          <button class="btn btn-raised details">Details</button>
+          <button class="btn btn-raised add">Add</button>
+        </div>
+      </div>
+
+
+		`);
+
+	}
+
+	updateList(){
+		const newList = htmlToElement('<div id="playerListContainer"></div>');
+		for (let i = 0; i < rhit.FbAddPlayersManager.length; i++){
+			const p = rhit.FbAddPlayersManager.getPlayerAtIndex(i);
+			const newCard = this._createCard(p);
+
+
+			newCard.querySelector(".add").onclick = (event) => {
+				console.log(`you clicked on ${p.name}`);
+
+			}
+
+			newList.appendChild(newCard);
+		}
+		const oldList = document.querySelector("#playerListContainer");
+		oldList.removeAttribute("id");
+		oldList.hidden = true;
+
+		oldList.parentElement.appendChild(newList);
+
+
+	}
+}
+
+
+
+
+rhit.player = class {
+	constructor(id, name, team){
+		this.id = id;
+		this.name = name;
+		this.team = team; 
+	}
+}
+
+rhit.FbAddPlayersManager = class {
+	constructor(){
+		console.log("created FbAddPlayersManager");
+		this._documentSnapshots = [];
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_PLAYERS);
+		this._unsubscribe = null;
+	}
+
+	beginListening(changeListener){
+		this._unsubscribe = this._ref
+			.onSnapshot((querySnapshot) => {
+				this._documentSnapshots = querySnapshot.docs;
+				changeListener();
+			});
+	}
+	stopListening(){
+		this._unsubscribe();
+	}
+	get length(){
+		return this._documentSnapshots.length;
+	}
+	getPlayerAtIndex(index){
+		const docSnapshot = this._documentSnapshots[index];
+		const p = new rhit.player(docSnapshot.id, docSnapshot.get("name"), docSnapshot.get("team"));
+		return p;
+	}
+
+}
+
+
+rhit.myTeamPageController = class{
+
+}
+
+rhit.FbMyTeamManager = class {
+	constructor(uid){
+		console.log("created FbMyTeamManager");
+		this._documentSnapshot = {};
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_USERS);
+		this._unsubscribe = null;
+		console.log(this._ref);
+	}
+	beginListening(changeListener){
+		this._unsubscribe = this._ref.onSnapshot((doc) => {
+			if(doc.exists){
+				console.log("Document data:", doc.data());
+				this._documentSnapshot=doc;
+				changeListener();
+			}else {
+				console.log("No such document!");
+			}
+		});
+	}
+	stopListening(){
+		this._unsubscribe();
+	}
+
+	get team (){
+		return this._documentSnapshot;
+	}
 }
 
 /* Main */
@@ -98,6 +241,10 @@ rhit.main = function () {
 
 		rhit.initializePage();
 	})
+
+	
+
+	
 
 	$("#toMyTeam").click((event) => {
 		window.location.href = "./myTeam.html"
