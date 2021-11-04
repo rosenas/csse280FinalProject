@@ -78,6 +78,7 @@ rhit.FbAuthManager = class {
 		return !!this._user;
 	}
 	get uid() {
+		
 		return this._user.uid;
 	}
 }
@@ -99,16 +100,24 @@ rhit.initializePage = function () {
 		rhit.FbAddPlayersManager = new rhit.FbAddPlayersManager();
 		new rhit.addPlayersPageController();
 	}
+	if(document.querySelector("#myTeamPage")){
+		console.log(rhit.fbAuthManager.uid);
+		//testing
+		rhit.FbMyTeamManager = new rhit.FbMyTeamManager(rhit.fbAuthManager.uid);
+		
+		new rhit.myTeamPageController();
+	}
+
+
 }
 
 rhit.addPlayersPageController = class{
 	constructor(){
 		console.log("created AddPlayersPageController");
 
+
 		rhit.FbAddPlayersManager.beginListening(this.updateList.bind(this));
-		let t = new rhit.FbMyTeamManager("RZJSG2Hq8jc21LNVEoKTedOuR3h2");
-		t.beginListening(this.updateList.bind(this));
-		console.log(t.team);
+		//rhit.FbMyTeamManager.beginListening(rhit.myTeamPageController.updateList.bind(this));
 	}
 
 	_createCard(player){
@@ -197,34 +206,95 @@ rhit.FbAddPlayersManager = class {
 
 
 rhit.myTeamPageController = class{
+	constructor() {
+		rhit.FbMyTeamManager.beginListening(this.updateList.bind(this));
+
+
+	}
+
+	_createCard(player){
+		console.log('player :>> ', player);
+
+		return htmlToElement(`
+		<div class="player">
+          <h1>${player.name}</h1>
+        <div>
+          <button class="btn btn-raised details">Details</button>
+          <button class="btn btn-raised drop">drop</button>
+        </div>
+      </div>
+
+
+		`);
+
+	}
+
+	updateList(){
+		const newList = htmlToElement('<div id="playerListContainer"></div>');
+		for (let i = 0; i < rhit.FbMyTeamManager.getTeam().length; i++){
+			const p = rhit.FbMyTeamManager.getTeam()[i];
+			const newCard = this._createCard(p);
+
+
+			newCard.querySelector(".drop").onclick = (event) => {
+				console.log(`you clicked on ${p.name}`);
+
+			}
+
+			newList.appendChild(newCard);
+		}
+		const oldList = document.querySelector("#playerListContainer");
+		oldList.removeAttribute("id");
+		oldList.hidden = true;
+
+		oldList.parentElement.appendChild(newList);
+
+
+	}
+
 
 }
 
 rhit.FbMyTeamManager = class {
 	constructor(uid){
 		console.log("created FbMyTeamManager");
-		this._documentSnapshot = {};
-		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_USERS);
+		this._documentSnapshots = [];
+		this._ref = firebase.firestore().collection("Users");
+		this.uid = uid;
 		this._unsubscribe = null;
-		console.log(this._ref);
+		
 	}
 	beginListening(changeListener){
-		this._unsubscribe = this._ref.onSnapshot((doc) => {
-			if(doc.exists){
-				console.log("Document data:", doc.data());
-				this._documentSnapshot=doc;
-				changeListener();
-			}else {
-				console.log("No such document!");
-			}
+
+
+		this._unsubscribe = this._ref.onSnapshot((querySnapshot) => {
+			this._documentSnapshots = querySnapshot.docs;
+			console.log(this._documentSnapshots);
+			
+			changeListener();
 		});
 	}
 	stopListening(){
 		this._unsubscribe();
 	}
 
-	get team (){
-		return this._documentSnapshot;
+	getTeam (){
+		let team = [];
+		console.log(this._documentSnapshots);
+		this._documentSnapshots.forEach((doc)=>{
+			console.log(this.uid);
+			console.log(doc.uid);
+			console.log(doc);
+			console.log(doc.player);
+			console.log(doc.data());
+			if(doc.data().uid == this.uid){
+	
+				doc.data().team.forEach((player) => {
+					team.push(new rhit.player(0,player, null))
+				})
+			}
+		})
+		return team;
 	}
 }
 
