@@ -149,6 +149,8 @@ rhit.addPlayersPageController = class{
 
 			newCard.querySelector(".add").onclick = (event) => {
 				console.log(`you clicked on ${p.name}`);
+				rhit.FbAddPlayersManager.addPlayer(p.name);
+	
 
 			}
 
@@ -179,8 +181,12 @@ rhit.FbAddPlayersManager = class {
 	constructor(){
 		console.log("created FbAddPlayersManager");
 		this._documentSnapshots = [];
+		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_PLAYERS);
+		this._ref2 = firebase.firestore().collection(rhit.FB_COLLECTION_USERS).doc(rhit.fbAuthManager.uid);
 		this._unsubscribe = null;
+		this._unsubscribe2 = null;
+		
 	}
 
 	beginListening(changeListener){
@@ -189,6 +195,17 @@ rhit.FbAddPlayersManager = class {
 				this._documentSnapshots = querySnapshot.docs;
 				changeListener();
 			});
+		this._unsubscribe2  =this._ref2
+		.onSnapshot((doc) => {
+			if(doc.exists){
+				console.log("Document data:", doc.data());
+				this._documentSnapshot=doc;
+				this.team = doc.data().team;
+				changeListener();
+			}else {
+				console.log("No such document!");
+			}
+		})
 	}
 	stopListening(){
 		this._unsubscribe();
@@ -196,10 +213,28 @@ rhit.FbAddPlayersManager = class {
 	get length(){
 		return this._documentSnapshots.length;
 	}
+
+
 	getPlayerAtIndex(index){
 		const docSnapshot = this._documentSnapshots[index];
 		const p = new rhit.player(docSnapshot.id, docSnapshot.get("name"), docSnapshot.get("team"));
 		return p;
+	}
+	addPlayer(player){
+		console.log(this._documentSnapshot);
+		let team = this._documentSnapshot.data().team;
+		if(team.includes(player)){
+
+		}
+		else{
+			team.push(player)
+			this._ref2.set({
+			['team']: team
+		})
+		}
+		
+		
+		
 	}
 
 }
@@ -207,7 +242,9 @@ rhit.FbAddPlayersManager = class {
 
 rhit.myTeamPageController = class{
 	constructor() {
-		rhit.FbMyTeamManager.beginListening(this.updateList.bind(this));
+		
+
+		setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
 
 
 	}
@@ -217,7 +254,7 @@ rhit.myTeamPageController = class{
 
 		return htmlToElement(`
 		<div class="player">
-          <h1>${player.name}</h1>
+          <h1>${player}</h1>
         <div>
           <button class="btn btn-raised details">Details</button>
           <button class="btn btn-raised drop">drop</button>
@@ -230,14 +267,17 @@ rhit.myTeamPageController = class{
 	}
 
 	updateList(){
+		console.log("list updated");
 		const newList = htmlToElement('<div id="playerListContainer"></div>');
-		for (let i = 0; i < rhit.FbMyTeamManager.getTeam().length; i++){
-			const p = rhit.FbMyTeamManager.getTeam()[i];
+		for (let i = 0; i < rhit.FbMyTeamManager.team.length; i++){
+			console.log(rhit.FbMyTeamManager.team[i]);
+			const p = rhit.FbMyTeamManager.team[i];
 			const newCard = this._createCard(p);
 
 
 			newCard.querySelector(".drop").onclick = (event) => {
-				console.log(`you clicked on ${p.name}`);
+				console.log(`you clicked on ${p}`);
+				rhit.FbMyTeamManager.dropPlayer(p);
 
 			}
 
@@ -258,20 +298,24 @@ rhit.myTeamPageController = class{
 rhit.FbMyTeamManager = class {
 	constructor(uid){
 		console.log("created FbMyTeamManager");
-		this._documentSnapshots = [];
-		this._ref = firebase.firestore().collection("Users");
+		this._documentSnapshot = {};
+		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
 		this.uid = uid;
 		this._unsubscribe = null;
+		this.team = this.getTeam();
 		
 	}
 	beginListening(changeListener){
 
 
-		this._unsubscribe = this._ref.onSnapshot((querySnapshot) => {
-			this._documentSnapshots = querySnapshot.docs;
-			console.log(this._documentSnapshots);
-			
-			changeListener();
+		this._unsubscribe = this._ref.onSnapshot((doc) => {
+			if(doc.exists){
+				console.log("Document data:", doc.data());
+				this._documentSnapshot=doc;
+				changeListener();
+			}else {
+				console.log("No such document!");
+			}
 		});
 	}
 	stopListening(){
@@ -279,22 +323,21 @@ rhit.FbMyTeamManager = class {
 	}
 
 	getTeam (){
-		let team = [];
-		console.log(this._documentSnapshots);
-		this._documentSnapshots.forEach((doc)=>{
-			console.log(this.uid);
-			console.log(doc.uid);
-			console.log(doc);
-			console.log(doc.player);
-			console.log(doc.data());
-			if(doc.data().uid == this.uid){
-	
-				doc.data().team.forEach((player) => {
-					team.push(new rhit.player(0,player, null))
+
+				this._ref.onSnapshot((doc) => {
+					this.team = doc.data().team;
+					return this.team
 				})
-			}
+		
+	}
+	dropPlayer(player){
+		this.getTeam();
+		let index = this.team.indexOf(player)
+		this.team.splice(index,1);
+		console.log(this.team);
+		this._ref.set({
+			['team']: this.team
 		})
-		return team;
 	}
 }
 
