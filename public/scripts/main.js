@@ -122,39 +122,44 @@ rhit.addPlayersPageController = class{
 
 	_createCard(player){
 		console.log('player :>> ', player);
-
-		return htmlToElement(`
+		if(player.name != "hidden"){
+			return htmlToElement(`
 		<div class="player">
         <div>
           <h1>${player.name}</h1>
           <p>${player.team}</p>
         </div>
         <div>
-          <button class="btn btn-raised details">Details</button>
           <button class="btn btn-raised add">Add</button>
         </div>
       </div>
 
 
 		`);
+		}
+		
 
 	}
 
 	updateList(){
 		const newList = htmlToElement('<div id="playerListContainer"></div>');
 		for (let i = 0; i < rhit.FbAddPlayersManager.length; i++){
+
 			const p = rhit.FbAddPlayersManager.getPlayerAtIndex(i);
-			const newCard = this._createCard(p);
+			if(p.name != "hidden"){
+				const newCard = this._createCard(p);
 
-
-			newCard.querySelector(".add").onclick = (event) => {
-				console.log(`you clicked on ${p.name}`);
-				rhit.FbAddPlayersManager.addPlayer(p.name);
+			
+				newCard.querySelector(".add").onclick = (event) => {
+					console.log(`you clicked on ${p.name}`);
+					rhit.FbAddPlayersManager.addPlayer(p.name);
 	
 
-			}
+				}
 
 			newList.appendChild(newCard);
+			}
+			
 		}
 		const oldList = document.querySelector("#playerListContainer");
 		oldList.removeAttribute("id");
@@ -186,6 +191,7 @@ rhit.FbAddPlayersManager = class {
 		this._ref2 = firebase.firestore().collection(rhit.FB_COLLECTION_USERS).doc(rhit.fbAuthManager.uid);
 		this._unsubscribe = null;
 		this._unsubscribe2 = null;
+		this.team = [];
 		
 	}
 
@@ -217,8 +223,9 @@ rhit.FbAddPlayersManager = class {
 
 	getPlayerAtIndex(index){
 		const docSnapshot = this._documentSnapshots[index];
+		console.log(this.team);
 		const p = new rhit.player(docSnapshot.id, docSnapshot.get("name"), docSnapshot.get("team"));
-		return p;
+		return this.checkIfOnTeam(p);
 	}
 	addPlayer(player){
 		console.log(this._documentSnapshot);
@@ -235,6 +242,16 @@ rhit.FbAddPlayersManager = class {
 		
 		
 		
+	}
+
+	checkIfOnTeam(player){
+		if(! this.team.includes(player.name)){
+			return player;
+		}else{
+			return new rhit.player(0, "hidden", "hidden")
+		}
+		
+
 	}
 
 }
@@ -256,7 +273,7 @@ rhit.myTeamPageController = class{
 		<div class="player">
           <h1>${player}</h1>
         <div>
-          <button class="btn btn-raised details">Details</button>
+          
           <button class="btn btn-raised drop">drop</button>
         </div>
       </div>
@@ -338,6 +355,13 @@ rhit.FbMyTeamManager = class {
 		this._ref.set({
 			['team']: this.team
 		})
+	}
+}
+
+
+rhit.detailsPageController = class {
+	constructor(){
+
 	}
 }
 
