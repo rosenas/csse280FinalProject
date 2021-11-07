@@ -10,7 +10,7 @@
 .player{
     width: auto; 
     color: black;
-    background-color: grey;
+    background-color: grey; 
     padding: 15px;  
     border-radius: 40px;
 }

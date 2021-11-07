@@ -155,7 +155,7 @@ rhit.addPlayersPageController = class{
 					rhit.FbAddPlayersManager.addPlayer(p.name);
 	
 
-				}
+			}
 
 			newList.appendChild(newCard);
 			}
@@ -270,15 +270,19 @@ rhit.myTeamPageController = class{
 		console.log('player :>> ', player);
 
 		return htmlToElement(`
-		<div class="player">
-          <h1>${player}</h1>
-        <div>
-          
-          <button class="btn btn-raised drop">drop</button>
-        </div>
-      </div>
-
-
+		<div class="row player">
+			<div class="col-10">
+				<div>
+					<h1 style="padding-bottom: 20px">${player}</h1>
+					<div>  
+						<button class="btn btn-raised drop">drop</button>
+					</div>
+				</div>
+			</div>
+			<div class="col-2 my-auto">
+				<h1>Score: <span class="score"> 0</span> </h1)
+			</div>
+		</div>
 		`);
 
 	}
