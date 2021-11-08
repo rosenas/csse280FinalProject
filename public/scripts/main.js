@@ -222,6 +222,9 @@ rhit.FbAddPlayersManager = class {
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_PLAYERS);
 		this._ref2 = firebase.firestore().collection(rhit.FB_COLLECTION_USERS).doc(rhit.fbAuthManager.uid);
+		this._ref2.set({
+			["Init"]: null
+		})
 		this._unsubscribe = null;
 		this._unsubscribe2 = null;
 		this.team = [];
@@ -263,10 +266,14 @@ rhit.FbAddPlayersManager = class {
 	addPlayer(player){
 		console.log(this._documentSnapshot);
 		let team = this._documentSnapshot.data().team;
-		if(team.includes(player)){
+		
+		if(team && team.includes(player)){
 
 		}
 		else{
+			if(!team){
+				team = []; 
+			}
 			team.push(player)
 			this._ref2.set({
 			['team']: team
@@ -278,6 +285,11 @@ rhit.FbAddPlayersManager = class {
 	}
 
 	checkIfOnTeam(player){
+		if(!this.team){
+			return player;
+		}
+
+
 		if(! this.team.includes(player.name)){
 			return player;
 		}else{
@@ -354,6 +366,9 @@ rhit.FbMyTeamManager = class {
 		console.log("created FbMyTeamManager");
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
+		this._ref.set({
+			["Init"]: null	
+		})
 		this.uid = uid;
 		this._unsubscribe = null;
 		this.team = this.getTeam();
