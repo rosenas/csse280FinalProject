@@ -40,6 +40,7 @@ rhit.LoginPageController = class {
 rhit.MainPageController = class {
 	constructor() {
 		// TODO: cannot read length property of undefined.
+		// Probably need to create a myTeamManager on Home Page
 		// document.querySelector("#numOfPlayers").innerHTML = rhit.FbMyTeamManager.team.length;
 	}
 }
