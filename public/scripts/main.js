@@ -33,7 +33,27 @@ rhit.LoginPageController = class {
 	constructor() {
 		document.querySelector("#rosefireButton").onclick = (event) => {
 			rhit.fbAuthManager.signIn();
-			console.log("clicked rosefire");
+		}
+	}
+}
+
+rhit.MainPageController = class {
+	constructor() {
+		// TODO: cannot read length property of undefined.
+		// document.querySelector("#numOfPlayers").innerHTML = rhit.FbMyTeamManager.team.length;
+	}
+}
+
+rhit.SettingsPageController = class {
+	constructor() {
+		document.querySelector("#name").value = rhit.fbAuthManager.displayName;
+		if(!rhit.fbAuthManager.email) {
+			document.querySelector("#email").value = rhit.fbAuthManager.uid + '@rose-hulman.edu';
+		} else {
+			document.querySelector("#email").value = rhit.fbAuthManager.email;
+		}
+		document.querySelector("#signOutButton").onclick = (event) => {
+			rhit.fbAuthManager.signOut();
 		}
 	}
 }
@@ -41,6 +61,7 @@ rhit.LoginPageController = class {
 rhit.FbAuthManager = class {
 	constructor() {
 		this._user = null;
+		this._displayName = null;
 	}
 	beginListening(changeListener) {
 		firebase.auth().onAuthStateChanged((user) => {
@@ -78,8 +99,13 @@ rhit.FbAuthManager = class {
 		return !!this._user;
 	}
 	get uid() {
-		
 		return this._user.uid;
+	}
+	get displayName() {
+		return this._user.displayName;
+	}
+	get email() {
+		return this._user.email;
 	}
 }
 
@@ -106,6 +132,12 @@ rhit.initializePage = function () {
 		rhit.FbMyTeamManager = new rhit.FbMyTeamManager(rhit.fbAuthManager.uid);
 		
 		new rhit.myTeamPageController();
+	}
+	if(document.querySelector("#settingsPage")) {
+		new rhit.SettingsPageController();
+	}
+	if(document.querySelector("#mainPage")) {
+		new rhit.MainPageController();
 	}
 
 
@@ -416,8 +448,6 @@ rhit.startFirebaseUI = function () {
 		signInOptions: [
 			firebase.auth.GoogleAuthProvider.PROVIDER_ID,
 			firebase.auth.EmailAuthProvider.PROVIDER_ID,
-			firebase.auth.PhoneAuthProvider.PROVIDER_ID,
-			firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID
 		],
 	};
 	const ui = new firebaseui.auth.AuthUI(firebase.auth());

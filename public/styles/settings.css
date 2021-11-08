@@ -22,3 +22,12 @@ h1 {
 p {
     padding: auto;
 }
+
+#teamLinkHolder {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#myTeamLink, #signOutButton {
+    font-size: 2rem;
+}
