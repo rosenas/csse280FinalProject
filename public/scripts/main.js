@@ -128,7 +128,7 @@ rhit.initializePage = function () {
 		new rhit.addPlayersPageController();
 	}
 	if(document.querySelector("#myTeamPage")){
-		console.log(rhit.fbAuthManager.uid);
+		//console.log(rhit.fbAuthManager.uid);
 		//testing
 		rhit.FbMyTeamManager = new rhit.FbMyTeamManager(rhit.fbAuthManager.uid);
 		
@@ -146,7 +146,7 @@ rhit.initializePage = function () {
 
 rhit.addPlayersPageController = class{
 	constructor(){
-		console.log("created AddPlayersPageController");
+		//console.log("created AddPlayersPageController");
 
 
 		rhit.FbAddPlayersManager.beginListening(this.updateList.bind(this));
@@ -154,7 +154,7 @@ rhit.addPlayersPageController = class{
 	}
 
 	_createCard(player){
-		console.log('player :>> ', player);
+		//console.log('player :>> ', player);
 		if(player.name != "hidden"){
 			return htmlToElement(`
 		<div class="player">
@@ -184,7 +184,7 @@ rhit.addPlayersPageController = class{
 
 			
 				newCard.querySelector(".add").onclick = (event) => {
-					console.log(`you clicked on ${p.name}`);
+					//console.log(`you clicked on ${p.name}`);
 					rhit.FbAddPlayersManager.addPlayer(p.name);
 	
 
@@ -217,7 +217,7 @@ rhit.player = class {
 
 rhit.FbAddPlayersManager = class {
 	constructor(){
-		console.log("created FbAddPlayersManager");
+		//console.log("created FbAddPlayersManager");
 		this._documentSnapshots = [];
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_PLAYERS);
@@ -240,7 +240,7 @@ rhit.FbAddPlayersManager = class {
 		this._unsubscribe2  =this._ref2
 		.onSnapshot((doc) => {
 			if(doc.exists){
-				console.log("Document data:", doc.data());
+				//console.log("Document data:", doc.data());
 				this._documentSnapshot=doc;
 				this.team = doc.data().team;
 				changeListener();
@@ -259,12 +259,12 @@ rhit.FbAddPlayersManager = class {
 
 	getPlayerAtIndex(index){
 		const docSnapshot = this._documentSnapshots[index];
-		console.log(this.team);
+		//console.log(this.team);
 		const p = new rhit.player(docSnapshot.id, docSnapshot.get("name"), docSnapshot.get("team"));
 		return this.checkIfOnTeam(p);
 	}
 	addPlayer(player){
-		console.log(this._documentSnapshot);
+		//console.log(this._documentSnapshot);
 		let team = this._documentSnapshot.data().team;
 		
 		if(team && team.includes(player)){
@@ -312,7 +312,7 @@ rhit.myTeamPageController = class{
 	}
 
 	_createCard(player){
-		console.log('player :>> ', player);
+		//console.log('player :>> ', player);
 
 		return htmlToElement(`
 		<div class="row player">
@@ -333,16 +333,16 @@ rhit.myTeamPageController = class{
 	}
 
 	updateList(){
-		console.log("list updated");
+		//console.log("list updated");
 		const newList = htmlToElement('<div id="playerListContainer"></div>');
 		for (let i = 0; i < rhit.FbMyTeamManager.team.length; i++){
-			console.log(rhit.FbMyTeamManager.team[i]);
+			//console.log(rhit.FbMyTeamManager.team[i]);
 			const p = rhit.FbMyTeamManager.team[i];
 			const newCard = this._createCard(p);
 
 
 			newCard.querySelector(".drop").onclick = (event) => {
-				console.log(`you clicked on ${p}`);
+				//console.log(`you clicked on ${p}`);
 				rhit.FbMyTeamManager.dropPlayer(p);
 
 			}
@@ -363,7 +363,7 @@ rhit.myTeamPageController = class{
 
 rhit.FbMyTeamManager = class {
 	constructor(uid){
-		console.log("created FbMyTeamManager");
+		//console.log("created FbMyTeamManager");
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
 		this._ref.update({
@@ -383,7 +383,7 @@ rhit.FbMyTeamManager = class {
 
 		this._unsubscribe = this._ref.onSnapshot((doc) => {
 			if(doc.exists){
-				console.log("Document data:", doc.data());
+				//console.log("Document data:", doc.data());
 				this._documentSnapshot=doc;
 				changeListener();
 			}else {
@@ -407,7 +407,7 @@ rhit.FbMyTeamManager = class {
 		this.getTeam();
 		let index = this.team.indexOf(player)
 		this.team.splice(index,1);
-		console.log(this.team);
+		//console.log(this.team);
 		this._ref.set({
 			['team']: this.team
 		})
