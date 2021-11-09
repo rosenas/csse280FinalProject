@@ -366,8 +366,12 @@ rhit.FbMyTeamManager = class {
 		console.log("created FbMyTeamManager");
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
-		this._ref.set({
+		this._ref.update({
 			["Init"]: null	
+		}).catch((error) => {
+			this._ref.set({
+				["Init"]: null
+			})
 		})
 		this.uid = uid;
 		this._unsubscribe = null;
