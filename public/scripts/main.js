@@ -47,12 +47,36 @@ rhit.MainPageController = class {
 
 rhit.SettingsPageController = class {
 	constructor() {
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_USERS).doc(rhit.fbAuthManager.uid);
+		this._ref.get().then((doc) => {
+			if (doc.exists && doc.data().teamName) {
+				document.querySelector("#teamName").value = doc.data().teamName;
+				// console.log("Document data:", doc.data());
+			} else {
+				console.log("No such document!");
+			}
+		}).catch((error) => {
+			console.log("Error getting document:", error);
+		});;
+		document.querySelector("#teamName").addEventListener("change", () => {
+			this._ref.update({
+				["teamName"]: document.querySelector("#teamName").value,
+			})
+				.catch((error) => {
+					this._ref.set({
+						["teamName"]: document.querySelector("#teamName").value,
+					});
+					// console.log("used set, think I cleared everything");
+				})
+		})
+
 		document.querySelector("#name").value = rhit.fbAuthManager.displayName;
-		if(!rhit.fbAuthManager.email) {
+		if (!rhit.fbAuthManager.email) {
 			document.querySelector("#email").value = rhit.fbAuthManager.uid + '@rose-hulman.edu';
 		} else {
 			document.querySelector("#email").value = rhit.fbAuthManager.email;
 		}
+
 		document.querySelector("#signOutButton").onclick = (event) => {
 			rhit.fbAuthManager.signOut();
 		}
@@ -123,29 +147,29 @@ rhit.initializePage = function () {
 	if (document.querySelector("#loginPage")) {
 		new rhit.LoginPageController();
 	}
-	if(document.querySelector("#addPlayersPage")){
+	if (document.querySelector("#addPlayersPage")) {
 		rhit.FbAddPlayersManager = new rhit.FbAddPlayersManager();
 		new rhit.addPlayersPageController();
 	}
-	if(document.querySelector("#myTeamPage")){
+	if (document.querySelector("#myTeamPage")) {
 		//console.log(rhit.fbAuthManager.uid);
 		//testing
 		rhit.FbMyTeamManager = new rhit.FbMyTeamManager(rhit.fbAuthManager.uid);
-		
+
 		new rhit.myTeamPageController();
 	}
-	if(document.querySelector("#settingsPage")) {
+	if (document.querySelector("#settingsPage")) {
 		new rhit.SettingsPageController();
 	}
-	if(document.querySelector("#mainPage")) {
+	if (document.querySelector("#mainPage")) {
 		new rhit.MainPageController();
 	}
 
 
 }
 
-rhit.addPlayersPageController = class{
-	constructor(){
+rhit.addPlayersPageController = class {
+	constructor() {
 		//console.log("created AddPlayersPageController");
 
 
@@ -153,9 +177,9 @@ rhit.addPlayersPageController = class{
 		//rhit.FbMyTeamManager.beginListening(rhit.myTeamPageController.updateList.bind(this));
 	}
 
-	_createCard(player){
+	_createCard(player) {
 		//console.log('player :>> ', player);
-		if(player.name != "hidden"){
+		if (player.name != "hidden") {
 			return htmlToElement(`
 		<div class="player">
         <div>
@@ -170,29 +194,29 @@ rhit.addPlayersPageController = class{
 
 		`);
 		}
-		
+
 
 	}
 
-	updateList(){
+	updateList() {
 		const newList = htmlToElement('<div id="playerListContainer"></div>');
-		for (let i = 0; i < rhit.FbAddPlayersManager.length; i++){
+		for (let i = 0; i < rhit.FbAddPlayersManager.length; i++) {
 
 			const p = rhit.FbAddPlayersManager.getPlayerAtIndex(i);
-			if(p.name != "hidden"){
+			if (p.name != "hidden") {
 				const newCard = this._createCard(p);
 
-			
+
 				newCard.querySelector(".add").onclick = (event) => {
 					//console.log(`you clicked on ${p.name}`);
 					rhit.FbAddPlayersManager.addPlayer(p.name);
-	
 
+
+				}
+
+				newList.appendChild(newCard);
 			}
 
-			newList.appendChild(newCard);
-			}
-			
 		}
 		const oldList = document.querySelector("#playerListContainer");
 		oldList.removeAttribute("id");
@@ -208,15 +232,15 @@ rhit.addPlayersPageController = class{
 
 
 rhit.player = class {
-	constructor(id, name, team){
+	constructor(id, name, team) {
 		this.id = id;
 		this.name = name;
-		this.team = team; 
+		this.team = team;
 	}
 }
 
 rhit.FbAddPlayersManager = class {
-	constructor(){
+	constructor() {
 		//console.log("created FbAddPlayersManager");
 		this._documentSnapshots = [];
 		this._documentSnapshot = {};
@@ -227,95 +251,122 @@ rhit.FbAddPlayersManager = class {
 		}).catch((error) => {
 			this._ref2.set({
 				["Init"]: null
-			})
-		})
+			});
+			console.log(error);
+			// console.log("used set, think I cleared everything");
+		});
 		this._unsubscribe = null;
 		this._unsubscribe2 = null;
 		this.team = [];
-		
+
 	}
 
-	beginListening(changeListener){
+	beginListening(changeListener) {
 		this._unsubscribe = this._ref
 			.onSnapshot((querySnapshot) => {
 				this._documentSnapshots = querySnapshot.docs;
 				changeListener();
 			});
-		this._unsubscribe2  =this._ref2
-		.onSnapshot((doc) => {
-			if(doc.exists){
-				//console.log("Document data:", doc.data());
-				this._documentSnapshot=doc;
-				this.team = doc.data().team;
-				changeListener();
-			}else {
-				console.log("No such document!");
-			}
-		})
+		this._unsubscribe2 = this._ref2
+			.onSnapshot((doc) => {
+				if (doc.exists) {
+					//console.log("Document data:", doc.data());
+					this._documentSnapshot = doc;
+					this.team = doc.data().team;
+					changeListener();
+				} else {
+					console.log("No such document!");
+				}
+			})
 	}
-	stopListening(){
+	stopListening() {
 		this._unsubscribe();
 	}
-	get length(){
+	get length() {
 		return this._documentSnapshots.length;
 	}
 
 
-	getPlayerAtIndex(index){
+	getPlayerAtIndex(index) {
 		const docSnapshot = this._documentSnapshots[index];
 		//console.log(this.team);
 		const p = new rhit.player(docSnapshot.id, docSnapshot.get("name"), docSnapshot.get("team"));
 		return this.checkIfOnTeam(p);
 	}
-	addPlayer(player){
+	addPlayer(player) {
 		//console.log(this._documentSnapshot);
 		let team = this._documentSnapshot.data().team;
-		
-		if(team && team.includes(player)){
+
+		if (team && team.includes(player)) {
 
 		}
-		else{
-			if(!team){
-				team = []; 
+		else {
+			if (!team) {
+				team = [];
 			}
 			team.push(player)
-			this._ref2.set({
-			['team']: team
-		})
+			this._ref2.update({
+				['team']: team
+			}).catch((error) => {
+				this._ref2.set({
+					['team']: team
+				})
+			})
 		}
-		
-		
-		
+
+
+
 	}
 
-	checkIfOnTeam(player){
-		if(!this.team){
+	checkIfOnTeam(player) {
+		if (!this.team) {
 			return player;
 		}
 
 
-		if(! this.team.includes(player.name)){
+		if (!this.team.includes(player.name)) {
 			return player;
-		}else{
+		} else {
 			return new rhit.player(0, "hidden", "hidden")
 		}
-		
+
 
 	}
 
 }
 
 
-rhit.myTeamPageController = class{
+rhit.myTeamPageController = class {
 	constructor() {
-		
 
+<<<<<<< HEAD
 		setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
 		
+=======
+
+		setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
+		rhit.FbMyTeamManager._ref.get().then((doc) => {
+			if (doc.exists) {
+				if (doc.data().teamName) {
+					document.querySelector("#myTeam").innerHTML = doc.data().teamName;
+				} else if (rhit.fbAuthManager.uid.length > 10) {
+					document.querySelector("#myTeam").innerHTML = rhit.fbAuthManager.displayName + "'s Team";
+				} else {
+					document.querySelector("#myTeam").innerHTML = rhit.fbAuthManager.uid + "'s Team";
+					// console.log("Document data:", doc.data());
+				}
+			} else {
+				console.log("tried to make name: ", doc.data().teamName);
+				console.log("No such document!");
+			}
+		}).catch((error) => {
+			console.log("Error getting document:", error);
+		});;
+>>>>>>> 90dfcbf980d909b9c5e00ecb3cb733c98ec41373
 
 	}
 
-	_createCard(player){
+	_createCard(player) {
 		//console.log('player :>> ', player);
 
 		return htmlToElement(`
@@ -336,10 +387,10 @@ rhit.myTeamPageController = class{
 
 	}
 
-	updateList(){
+	updateList() {
 		//console.log("list updated");
 		const newList = htmlToElement('<div id="playerListContainer"></div>');
-		for (let i = 0; i < rhit.FbMyTeamManager.team.length; i++){
+		for (let i = 0; i < rhit.FbMyTeamManager.team.length; i++) {
 			//console.log(rhit.FbMyTeamManager.team[i]);
 			const p = rhit.FbMyTeamManager.team[i];
 			const newCard = this._createCard(p);
@@ -366,61 +417,65 @@ rhit.myTeamPageController = class{
 }
 
 rhit.FbMyTeamManager = class {
-	constructor(uid){
+	constructor(uid) {
 		//console.log("created FbMyTeamManager");
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
 		this._ref.update({
-			["Init"]: null	
+			["Init"]: null
 		}).catch((error) => {
 			this._ref.set({
 				["Init"]: null
-			})
+			});
+			console.log(error);
 		})
 		this.uid = uid;
 		this._unsubscribe = null;
 		this.team = this.getTeam();
-		
 	}
-	beginListening(changeListener){
+	beginListening(changeListener) {
 
 
 		this._unsubscribe = this._ref.onSnapshot((doc) => {
-			if(doc.exists){
+			if (doc.exists) {
 				//console.log("Document data:", doc.data());
-				this._documentSnapshot=doc;
+				this._documentSnapshot = doc;
 				changeListener();
-			}else {
+			} else {
 				console.log("No such document!");
 			}
 		});
 	}
-	stopListening(){
+	stopListening() {
 		this._unsubscribe();
 	}
 
-	getTeam (){
+	getTeam() {
 
-				this._ref.onSnapshot((doc) => {
-					this.team = doc.data().team;
-					return this.team
-				})
-		
+		this._ref.onSnapshot((doc) => {
+			this.team = doc.data().team;
+			return this.team
+		})
+
 	}
-	dropPlayer(player){
+	dropPlayer(player) {
 		this.getTeam();
 		let index = this.team.indexOf(player)
-		this.team.splice(index,1);
+		this.team.splice(index, 1);
 		//console.log(this.team);
-		this._ref.set({
+		this._ref.update({
 			['team']: this.team
+		}).catch((error) => {
+			this._ref.set({
+				['team']: this.team
+			})
 		})
 	}
 }
 
 
 rhit.detailsPageController = class {
-	constructor(){
+	constructor() {
 
 	}
 }
@@ -439,9 +494,9 @@ rhit.main = function () {
 		rhit.initializePage();
 	})
 
-	
 
-	
+
+
 
 	$("#toMyTeam").click((event) => {
 		window.location.href = "./myTeam.html"
