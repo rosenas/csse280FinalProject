@@ -59,9 +59,15 @@ rhit.SettingsPageController = class {
 			console.log("Error getting document:", error);
 		});;
 		document.querySelector("#teamName").addEventListener("change", () => {
-			this._ref.set({
+			this._ref.update({
 				["teamName"]: document.querySelector("#teamName").value,
-			});
+			})
+			.catch((error) => {
+				this._ref.set({
+					["teamName"]: document.querySelector("#teamName").value,
+				});
+				// console.log("used set, think I cleared everything");
+			})
 		})
 
 		document.querySelector("#name").value = rhit.fbAuthManager.displayName;
@@ -245,7 +251,8 @@ rhit.FbAddPlayersManager = class {
 		}).catch((error) => {
 			this._ref2.set({
 				["Init"]: null
-			})
+			});
+			// console.log("used set, think I cleared everything");
 		})
 		this._unsubscribe = null;
 		this._unsubscribe2 = null;
@@ -329,7 +336,17 @@ rhit.myTeamPageController = class {
 
 
 		setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
-
+		rhit.FbMyTeamManager._ref.get().then((doc) => {
+			if (doc.exists) {
+				document.querySelector("#myTeam").innerHTML = doc.data().teamName || "Nothing";
+				// console.log("Document data:", doc.data());
+			} else {
+				console.log("tried to make name: ", doc.data().teamName);
+				console.log("No such document, dumbass");
+			}
+		}).catch((error) => {
+			console.log("Error getting document:", error);
+		});;
 
 	}
 
@@ -398,7 +415,6 @@ rhit.FbMyTeamManager = class {
 		this.uid = uid;
 		this._unsubscribe = null;
 		this.team = this.getTeam();
-
 	}
 	beginListening(changeListener) {
 
