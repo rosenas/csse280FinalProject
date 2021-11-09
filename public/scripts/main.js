@@ -311,7 +311,7 @@ rhit.myTeamPageController = class{
 		
 
 		setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
-
+		
 
 	}
 
