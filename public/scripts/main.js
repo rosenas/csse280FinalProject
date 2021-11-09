@@ -339,10 +339,6 @@ rhit.FbAddPlayersManager = class {
 rhit.myTeamPageController = class {
 	constructor() {
 
-<<<<<<< HEAD
-		setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
-		
-=======
 
 		setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
 		rhit.FbMyTeamManager._ref.get().then((doc) => {
@@ -362,7 +358,6 @@ rhit.myTeamPageController = class {
 		}).catch((error) => {
 			console.log("Error getting document:", error);
 		});;
->>>>>>> 90dfcbf980d909b9c5e00ecb3cb733c98ec41373
 
 	}
 
