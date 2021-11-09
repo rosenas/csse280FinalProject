@@ -222,8 +222,12 @@ rhit.FbAddPlayersManager = class {
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_PLAYERS);
 		this._ref2 = firebase.firestore().collection(rhit.FB_COLLECTION_USERS).doc(rhit.fbAuthManager.uid);
-		this._ref2.set({
+		this._ref2.update({
 			["Init"]: null
+		}).catch((error) => {
+			this._ref2.set({
+				["Init"]: null
+			})
 		})
 		this._unsubscribe = null;
 		this._unsubscribe2 = null;
