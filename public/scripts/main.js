@@ -145,8 +145,8 @@ rhit.initializePage = function () {
 		rhit.FbAddPlayersManager = new rhit.FbAddPlayersManager();
 		new rhit.addPlayersPageController();
 	}
-	if (document.querySelector("#myTeamPage")) {
-		console.log(rhit.fbAuthManager.uid);
+	if(document.querySelector("#myTeamPage")){
+		//console.log(rhit.fbAuthManager.uid);
 		//testing
 		rhit.FbMyTeamManager = new rhit.FbMyTeamManager(rhit.fbAuthManager.uid);
 
@@ -162,18 +162,18 @@ rhit.initializePage = function () {
 
 }
 
-rhit.addPlayersPageController = class {
-	constructor() {
-		console.log("created AddPlayersPageController");
+rhit.addPlayersPageController = class{
+	constructor(){
+		//console.log("created AddPlayersPageController");
 
 
 		rhit.FbAddPlayersManager.beginListening(this.updateList.bind(this));
 		//rhit.FbMyTeamManager.beginListening(rhit.myTeamPageController.updateList.bind(this));
 	}
 
-	_createCard(player) {
-		console.log('player :>> ', player);
-		if (player.name != "hidden") {
+	_createCard(player){
+		//console.log('player :>> ', player);
+		if(player.name != "hidden"){
 			return htmlToElement(`
 		<div class="player">
         <div>
@@ -202,7 +202,7 @@ rhit.addPlayersPageController = class {
 
 
 				newCard.querySelector(".add").onclick = (event) => {
-					console.log(`you clicked on ${p.name}`);
+					//console.log(`you clicked on ${p.name}`);
 					rhit.FbAddPlayersManager.addPlayer(p.name);
 
 
@@ -234,14 +234,18 @@ rhit.player = class {
 }
 
 rhit.FbAddPlayersManager = class {
-	constructor() {
-		console.log("created FbAddPlayersManager");
+	constructor(){
+		//console.log("created FbAddPlayersManager");
 		this._documentSnapshots = [];
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_PLAYERS);
 		this._ref2 = firebase.firestore().collection(rhit.FB_COLLECTION_USERS).doc(rhit.fbAuthManager.uid);
-		this._ref2.set({
+		this._ref2.update({
 			["Init"]: null
+		}).catch((error) => {
+			this._ref2.set({
+				["Init"]: null
+			})
 		})
 		this._unsubscribe = null;
 		this._unsubscribe2 = null;
@@ -255,17 +259,17 @@ rhit.FbAddPlayersManager = class {
 				this._documentSnapshots = querySnapshot.docs;
 				changeListener();
 			});
-		this._unsubscribe2 = this._ref2
-			.onSnapshot((doc) => {
-				if (doc.exists) {
-					console.log("Document data:", doc.data());
-					this._documentSnapshot = doc;
-					this.team = doc.data().team;
-					changeListener();
-				} else {
-					console.log("No such document!");
-				}
-			})
+		this._unsubscribe2  =this._ref2
+		.onSnapshot((doc) => {
+			if(doc.exists){
+				//console.log("Document data:", doc.data());
+				this._documentSnapshot=doc;
+				this.team = doc.data().team;
+				changeListener();
+			}else {
+				console.log("No such document!");
+			}
+		})
 	}
 	stopListening() {
 		this._unsubscribe();
@@ -277,12 +281,12 @@ rhit.FbAddPlayersManager = class {
 
 	getPlayerAtIndex(index) {
 		const docSnapshot = this._documentSnapshots[index];
-		console.log(this.team);
+		//console.log(this.team);
 		const p = new rhit.player(docSnapshot.id, docSnapshot.get("name"), docSnapshot.get("team"));
 		return this.checkIfOnTeam(p);
 	}
-	addPlayer(player) {
-		console.log(this._documentSnapshot);
+	addPlayer(player){
+		//console.log(this._documentSnapshot);
 		let team = this._documentSnapshot.data().team;
 
 		if (team && team.includes(player)) {
@@ -329,8 +333,8 @@ rhit.myTeamPageController = class {
 
 	}
 
-	_createCard(player) {
-		console.log('player :>> ', player);
+	_createCard(player){
+		//console.log('player :>> ', player);
 
 		return htmlToElement(`
 		<div class="row player">
@@ -350,17 +354,17 @@ rhit.myTeamPageController = class {
 
 	}
 
-	updateList() {
-		console.log("list updated");
+	updateList(){
+		//console.log("list updated");
 		const newList = htmlToElement('<div id="playerListContainer"></div>');
-		for (let i = 0; i < rhit.FbMyTeamManager.team.length; i++) {
-			console.log(rhit.FbMyTeamManager.team[i]);
+		for (let i = 0; i < rhit.FbMyTeamManager.team.length; i++){
+			//console.log(rhit.FbMyTeamManager.team[i]);
 			const p = rhit.FbMyTeamManager.team[i];
 			const newCard = this._createCard(p);
 
 
 			newCard.querySelector(".drop").onclick = (event) => {
-				console.log(`you clicked on ${p}`);
+				//console.log(`you clicked on ${p}`);
 				rhit.FbMyTeamManager.dropPlayer(p);
 
 			}
@@ -380,12 +384,16 @@ rhit.myTeamPageController = class {
 }
 
 rhit.FbMyTeamManager = class {
-	constructor(uid) {
-		console.log("created FbMyTeamManager");
+	constructor(uid){
+		//console.log("created FbMyTeamManager");
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
-		this._ref.set({
-			["Init"]: null
+		this._ref.update({
+			["Init"]: null	
+		}).catch((error) => {
+			this._ref.set({
+				["Init"]: null
+			})
 		})
 		this.uid = uid;
 		this._unsubscribe = null;
@@ -396,9 +404,9 @@ rhit.FbMyTeamManager = class {
 
 
 		this._unsubscribe = this._ref.onSnapshot((doc) => {
-			if (doc.exists) {
-				console.log("Document data:", doc.data());
-				this._documentSnapshot = doc;
+			if(doc.exists){
+				//console.log("Document data:", doc.data());
+				this._documentSnapshot=doc;
 				changeListener();
 			} else {
 				console.log("No such document!");
@@ -420,8 +428,8 @@ rhit.FbMyTeamManager = class {
 	dropPlayer(player) {
 		this.getTeam();
 		let index = this.team.indexOf(player)
-		this.team.splice(index, 1);
-		console.log(this.team);
+		this.team.splice(index,1);
+		//console.log(this.team);
 		this._ref.set({
 			['team']: this.team
 		})
