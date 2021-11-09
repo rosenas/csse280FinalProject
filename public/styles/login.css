@@ -42,7 +42,7 @@ h1 {
     width: 50%;
 }
 
-img {
+#bottomImg {
     position: absolute;
     left: 0;
     bottom: 0;
