@@ -164,6 +164,9 @@ rhit.initializePage = function () {
 	if (document.querySelector("#mainPage")) {
 		new rhit.MainPageController();
 	}
+	if(document.querySelector("#adminPage")) {
+		//new rhit.AdminPageController();
+	}
 
 
 }
@@ -509,8 +512,8 @@ rhit.main = function () {
 		window.location.href = "./settings.html"
 	}))
 
-	$(".details").click((event) => {
-		window.location.href = "./details.html"
+	$("#toAdmin").click((event) => {
+		window.location.href = "./admin.html"
 	})
 
 	rhit.startFirebaseUI();
