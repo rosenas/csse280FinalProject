@@ -491,8 +491,8 @@ rhit.FbMyTeamManager = class {
 
 
 	scorePush(team, i){
-		console.log(team.length);
-		console.log(i);
+		//console.log(team.length);
+		//console.log(i);
 		if(i >= team.length){
 			return;
 		}
@@ -511,8 +511,8 @@ rhit.FbMyTeamManager = class {
 		this._ref2.get().then((snapshot) => {
 			snapshot.forEach((doc) => {
 				if(player == doc.data().name){
-					console.log(doc.data());
-					console.log(doc.data().score);
+					//console.log(doc.data());
+					//console.log(doc.data().score);
 					
 					document.querySelector(`#${player.replace(" ", "-")}`).innerHTML = doc.data().score;
 					return {"name": player, "score": doc.data().score};	
@@ -541,26 +541,26 @@ rhit.FbMyTeamManager = class {
 }
 
 
-rhit.FbScoreManager = class {
-	constructor(player){
-		this._documentSnapshots= [];
-		this._ref = firebase.firestore().collection("Players");
-		this.score = 0
-		this.player= player;
-	}
-	get Scores(){
-		this._ref.get().then((snapshot) => {
-			snapshot.forEach((doc) => {
-				if(this.player == doc.data().name){
-					console.log(doc.data());
-					console.log(doc.data().score);
-					return doc.data().score;	
-				}
-			})
-		})
+// rhit.FbScoreManager = class {
+// 	constructor(player){
+// 		this._documentSnapshots= [];
+// 		this._ref = firebase.firestore().collection("Players");
+// 		this.score = 0
+// 		this.player= player;
+// 	}
+// 	get Scores(){
+// 		this._ref.get().then((snapshot) => {
+// 			snapshot.forEach((doc) => {
+// 				if(this.player == doc.data().name){
+// 					console.log(doc.data());
+// 					console.log(doc.data().score);
+// 					return doc.data().score;	
+// 				}
+// 			})
+// 		})
  
-	}
-}
+// 	}
+// }
 
 
 rhit.detailsPageController = class {
