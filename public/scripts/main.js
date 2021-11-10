@@ -383,7 +383,7 @@ rhit.myTeamPageController = class {
 				</div>
 			</div>
 			<div class="col-2 my-auto">
-				<h1>Score: <span id="${player}" class="score">0</span> </h1)
+				<h1>Score: <span id="${player.replace(" ", "-")}" class="score">0</span> </h1)
 			</div>
 		</div>
 		`);
@@ -418,18 +418,17 @@ rhit.myTeamPageController = class {
 
 		oldList.parentElement.appendChild(newList);
 
-		console.log(rhit.FbMyTeamManager.team);
-		this.updateScore(rhit.FbMyTeamManager.team)
+		
 
 	}
 
-	updateScore(team){
-		team.forEach((player) => {
-			rhit.FbScoreManager = new rhit.FbScoreManager(player);
-			console.log(rhit.FbScoreManager.Scores);
-			document.querySelector(`#${player}`).innerHTML = rhit.FbScoreManager.Scores 
-		})
-	}
+	// updateScore(team){
+	// 	team.forEach((player) => {
+	// 		rhit.FbScoreManager = new rhit.FbScoreManager(player);
+	// 		console.log(rhit.FbScoreManager.Scores);
+	// 		document.querySelector(`#${player}`).innerHTML = rhit.FbScoreManager.Scores 
+	// 	})
+	// }
 
 
 
@@ -441,6 +440,7 @@ rhit.FbMyTeamManager = class {
 		//console.log("created FbMyTeamManager");
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
+		this._ref2 = firebase.firestore().collection("Players");
 		this._ref.update({
 			["Init"]: null
 		}).catch((error) => {
@@ -452,6 +452,7 @@ rhit.FbMyTeamManager = class {
 		this.uid = uid;
 		this._unsubscribe = null;
 		this.team = this.getTeam();
+		this.scores= [];
 	}
 	beginListening(changeListener) {
 
@@ -474,10 +475,54 @@ rhit.FbMyTeamManager = class {
 
 		this._ref.onSnapshot((doc) => {
 			this.team = doc.data().team;
+			// doc.data().team.forEach((player) => {
+			// 	console.log(this.getScores(player));
+			// 	this.scores.push(this.getScores(player));
+			// })
+
+			//this.scores.push(this.getScores(this.team[0]));
+
+			this.scorePush(doc.data().team, 0);
+
 			return this.team
 		})
 
 	}
+
+
+	scorePush(team, i){
+		console.log(team.length);
+		console.log(i);
+		if(i >= team.length){
+			return;
+		}
+		else{
+			this.scores.push(this.getScores(this.team[i]));
+			setTimeout(() => {
+				return this.scorePush(team, i+1);
+			})
+			
+			
+		}
+
+	}	
+
+	getScores(player) {
+		this._ref2.get().then((snapshot) => {
+			snapshot.forEach((doc) => {
+				if(player == doc.data().name){
+					console.log(doc.data());
+					console.log(doc.data().score);
+					
+					document.querySelector(`#${player.replace(" ", "-")}`).innerHTML = doc.data().score;
+					return {"name": player, "score": doc.data().score};	
+				}
+			})
+		})
+		
+	}
+
+
 	dropPlayer(player) {
 		this.getTeam();
 		let index = this.team.indexOf(player)
