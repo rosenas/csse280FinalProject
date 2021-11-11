@@ -170,6 +170,7 @@ rhit.initializePage = function () {
 		//console.log(rhit.fbAuthManager.uid);
 		//testing
 		rhit.FbMyTeamManager = new rhit.FbMyTeamManager(rhit.fbAuthManager.uid);
+		
 
 		new rhit.myTeamPageController();
 	}
@@ -357,8 +358,10 @@ rhit.FbAddPlayersManager = class {
 rhit.myTeamPageController = class {
 	constructor() {
 
-
 		setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
+
+
+
 		rhit.FbMyTeamManager._ref.get().then((doc) => {
 			if (doc.exists) {
 				if (doc.data().teamName) {
@@ -376,11 +379,13 @@ rhit.myTeamPageController = class {
 		}).catch((error) => {
 			console.log("Error getting document:", error);
 		});;
-
+		
 	}
 
 	_createCard(player) {
 		//console.log('player :>> ', player);
+
+
 
 		return htmlToElement(`
 		<div class="row player">
@@ -393,7 +398,7 @@ rhit.myTeamPageController = class {
 				</div>
 			</div>
 			<div class="col-2 my-auto">
-				<h1>Score: <span class="score"> 0</span> </h1)
+				<h1>Score: <span id="${player.replace(" ", "-")}" class="score">0</span> </h1)
 			</div>
 		</div>
 		`);
@@ -406,16 +411,21 @@ rhit.myTeamPageController = class {
 		for (let i = 0; i < rhit.FbMyTeamManager.team.length; i++) {
 			//console.log(rhit.FbMyTeamManager.team[i]);
 			const p = rhit.FbMyTeamManager.team[i];
+			//console.log(scoreManager.getScores());
+			
 			const newCard = this._createCard(p);
 
 
 			newCard.querySelector(".drop").onclick = (event) => {
-				//console.log(`you clicked on ${p}`);
-				rhit.FbMyTeamManager.dropPlayer(p);
+			//console.log(`you clicked on ${p}`);
+			rhit.FbMyTeamManager.dropPlayer(p);
 
 			}
-
 			newList.appendChild(newCard);
+			
+			
+
+			
 		}
 		const oldList = document.querySelector("#playerListContainer");
 		oldList.removeAttribute("id");
@@ -423,8 +433,19 @@ rhit.myTeamPageController = class {
 
 		oldList.parentElement.appendChild(newList);
 
+		
 
 	}
+
+	// updateScore(team){
+	// 	team.forEach((player) => {
+	// 		rhit.FbScoreManager = new rhit.FbScoreManager(player);
+	// 		console.log(rhit.FbScoreManager.Scores);
+	// 		document.querySelector(`#${player}`).innerHTML = rhit.FbScoreManager.Scores 
+	// 	})
+	// }
+
+
 
 
 }
@@ -434,6 +455,7 @@ rhit.FbMyTeamManager = class {
 		//console.log("created FbMyTeamManager");
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
+		this._ref2 = firebase.firestore().collection("Players");
 		this._ref.update({
 			["Init"]: null
 		}).catch((error) => {
@@ -445,6 +467,7 @@ rhit.FbMyTeamManager = class {
 		this.uid = uid;
 		this._unsubscribe = null;
 		this.team = this.getTeam();
+		this.scores= [];
 	}
 	beginListening(changeListener) {
 
@@ -467,10 +490,54 @@ rhit.FbMyTeamManager = class {
 
 		this._ref.onSnapshot((doc) => {
 			this.team = doc.data().team;
+			// doc.data().team.forEach((player) => {
+			// 	console.log(this.getScores(player));
+			// 	this.scores.push(this.getScores(player));
+			// })
+
+			//this.scores.push(this.getScores(this.team[0]));
+
+			this.scorePush(doc.data().team, 0);
+
 			return this.team
 		})
 
 	}
+
+
+	scorePush(team, i){
+		//console.log(team.length);
+		//console.log(i);
+		if(i >= team.length){
+			return;
+		}
+		else{
+			this.scores.push(this.getScores(this.team[i]));
+			setTimeout(() => {
+				return this.scorePush(team, i+1);
+			})
+			
+			
+		}
+
+	}	
+
+	getScores(player) {
+		this._ref2.get().then((snapshot) => {
+			snapshot.forEach((doc) => {
+				if(player == doc.data().name){
+					//console.log(doc.data());
+					//console.log(doc.data().score);
+					
+					document.querySelector(`#${player.replace(" ", "-")}`).innerHTML = doc.data().score;
+					return {"name": player, "score": doc.data().score};	
+				}
+			})
+		})
+		
+	}
+
+
 	dropPlayer(player) {
 		this.getTeam();
 		let index = this.team.indexOf(player)
@@ -484,7 +551,31 @@ rhit.FbMyTeamManager = class {
 			})
 		})
 	}
+
+
 }
+
+
+// rhit.FbScoreManager = class {
+// 	constructor(player){
+// 		this._documentSnapshots= [];
+// 		this._ref = firebase.firestore().collection("Players");
+// 		this.score = 0
+// 		this.player= player;
+// 	}
+// 	get Scores(){
+// 		this._ref.get().then((snapshot) => {
+// 			snapshot.forEach((doc) => {
+// 				if(this.player == doc.data().name){
+// 					console.log(doc.data());
+// 					console.log(doc.data().score);
+// 					return doc.data().score;	
+// 				}
+// 			})
+// 		})
+ 
+// 	}
+// }
 
 
 rhit.detailsPageController = class {
