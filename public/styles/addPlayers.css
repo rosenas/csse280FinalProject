@@ -1,3 +1,6 @@
+body {
+    margin-bottom: 50px;
+}
 #playerListContainer{
     display: flex;
     flex-direction: column;
@@ -22,4 +25,13 @@
 .add, .details{
     background-color: #800000;
     color: white;
+}
+
+#playerFilterDiv {
+    text-align: center;
+}
+
+label {
+    font-weight: bold;
+    font-size: 1.3em;
 }

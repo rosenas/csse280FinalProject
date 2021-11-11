@@ -40,9 +40,17 @@ rhit.LoginPageController = class {
 
 rhit.MainPageController = class {
 	constructor() {
-		// TODO: cannot read length property of undefined.
-		// Probably need to create a myTeamManager on Home Page
-		// document.querySelector("#numOfPlayers").innerHTML = rhit.FbMyTeamManager.team.length;
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_USERS).doc(rhit.fbAuthManager.uid);
+		this._ref.get().then((doc) => {
+			if (doc.exists && doc.data().team) {
+				document.querySelector("#numOfPlayers").innerHTML = doc.data().team.length;
+			} else if (doc.exists) {
+				document.querySelector("#numOfPlayers").innerHTML = 0;
+			} else {
+				document.querySelector("#numOfPlayers").innerHTML = 0;
+				console.log("No such document!");
+			}
+		});
 	}
 }
 
@@ -86,7 +94,6 @@ rhit.SettingsPageController = class {
 
 rhit.AdminPageController = class {
 	constructor() {
-		this.isAdmin = false;
 		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_ADMIN).doc(rhit.fbAuthManager.uid);
 		this._ref.get().then((doc) => {
 			if (doc.exists) {
@@ -170,8 +177,6 @@ rhit.initializePage = function () {
 		//console.log(rhit.fbAuthManager.uid);
 		//testing
 		rhit.FbMyTeamManager = new rhit.FbMyTeamManager(rhit.fbAuthManager.uid);
-		
-
 		new rhit.myTeamPageController();
 	}
 	if (document.querySelector("#settingsPage")) {
@@ -190,7 +195,20 @@ rhit.initializePage = function () {
 rhit.addPlayersPageController = class {
 	constructor() {
 		//console.log("created AddPlayersPageController");
-
+		this.teams = [];
+		document.querySelector("#playerFilter").addEventListener('change', function() {
+			console.log(document.querySelector("#playerListContainer").childElementCount);
+			for(let i = 0; i < document.querySelector("#playerListContainer").childElementCount; i++) {
+				let team = document.querySelector("#playerListContainer").childNodes[i].querySelector("#team").innerHTML;
+				if(document.querySelector("#playerFilter").value == "all") {
+					document.querySelector("#playerListContainer").childNodes[i].style.display = "block";
+				} else if(document.querySelector("#playerFilter").value != team) {
+					document.querySelector("#playerListContainer").childNodes[i].style.display = "none";
+				} else {
+					document.querySelector("#playerListContainer").childNodes[i].style.display = "block";
+				}
+			}
+		})
 
 		rhit.FbAddPlayersManager.beginListening(this.updateList.bind(this));
 		//rhit.FbMyTeamManager.beginListening(rhit.myTeamPageController.updateList.bind(this));
@@ -203,7 +221,7 @@ rhit.addPlayersPageController = class {
 		<div class="player">
         <div>
           <h1>${player.name}</h1>
-          <p>${player.team}</p>
+          <p id="team">${player.team}</p>
         </div>
         <div>
           <button class="btn btn-raised add">Add</button>
@@ -220,20 +238,25 @@ rhit.addPlayersPageController = class {
 	updateList() {
 		const newList = htmlToElement('<div id="playerListContainer"></div>');
 		for (let i = 0; i < rhit.FbAddPlayersManager.length; i++) {
-
 			const p = rhit.FbAddPlayersManager.getPlayerAtIndex(i);
+
 			if (p.name != "hidden") {
 				const newCard = this._createCard(p);
-
-
 				newCard.querySelector(".add").onclick = (event) => {
 					//console.log(`you clicked on ${p.name}`);
 					rhit.FbAddPlayersManager.addPlayer(p.name);
+				}
+				newList.appendChild(newCard);
 
-
+				if(!this.teams.includes(p.team)) {
+					this.teams.push(p.team);
+					let option = document.createElement("option");
+					option.text = p.team;
+					option.value = p.team;
+					document.querySelector("#playerFilter").add(option);
 				}
 
-				newList.appendChild(newCard);
+
 			}
 
 		}
