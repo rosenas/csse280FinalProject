@@ -14,6 +14,7 @@ rhit.variableName = "";
 
 rhit.FB_COLLECTION_PLAYERS = "Players";
 rhit.FB_COLLECTION_USERS = "Users";
+rhit.FB_COLLECTION_ADMIN = "Admin";
 
 /** function and class syntax examples */
 rhit.functionName = function () {
@@ -80,6 +81,20 @@ rhit.SettingsPageController = class {
 		document.querySelector("#signOutButton").onclick = (event) => {
 			rhit.fbAuthManager.signOut();
 		}
+	}
+}
+
+rhit.AdminPageController = class {
+	constructor() {
+		this.isAdmin = false;
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_ADMIN).doc(rhit.fbAuthManager.uid);
+		this._ref.get().then((doc) => {
+			if (doc.exists) {
+				document.querySelector("#no-access").style.display = "none";
+			} else {
+				document.querySelector("#access").style.display = "none";
+			}
+		});
 	}
 }
 
@@ -164,8 +179,8 @@ rhit.initializePage = function () {
 	if (document.querySelector("#mainPage")) {
 		new rhit.MainPageController();
 	}
-	if(document.querySelector("#adminPage")) {
-		//new rhit.AdminPageController();
+	if (document.querySelector("#adminPage")) {
+		new rhit.AdminPageController();
 	}
 
 

@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
   <link rel="stylesheet" href="styles/bootstrap-material-design.min.css">
-  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/admin.css">
   <title>IM's Fantasy Football</title>
 </head>
 
@@ -19,16 +19,58 @@
         <i class="material-icons">more_vert</i>
       </button>
       <div class="dropdown-menu dropdown-menu-right" style="left:-138px">
-        <button class="dropdown-item" type="button" id="toMyTeam"><i class="material-icons">people</i>&nbsp;&nbsp;&nbsp;My Team</button>
-        <button class="dropdown-item" type="button" id="toAddPlayers"><i class="material-icons">person_add</i>&nbsp;&nbsp;&nbsp;Add Players</button>
-        <button class="dropdown-item" type="button" id="toSettings"><i class="material-icons">settings</i>&nbsp;&nbsp;&nbsp;Settings</button>
-        <button class="dropdown-item" type="button" id="toSignOut"><i class="material-icons">login</i>&nbsp;&nbsp;&nbsp;Sign Out</button>
-        <button class="dropdown-item" type="button" id="toAdmin"><i class="material-icons">badge</i>&nbsp;&nbsp;&nbsp;Admin</button>
+        <button class="dropdown-item" type="button" id="toMyTeam"><i
+            class="material-icons">people</i>&nbsp;&nbsp;&nbsp;My Team</button>
+        <button class="dropdown-item" type="button" id="toAddPlayers"><i
+            class="material-icons">person_add</i>&nbsp;&nbsp;&nbsp;Add Players</button>
+        <button class="dropdown-item" type="button" id="toSettings"><i
+            class="material-icons">settings</i>&nbsp;&nbsp;&nbsp;Settings</button>
+        <button class="dropdown-item" type="button" id="toSignOut"><i
+            class="material-icons">login</i>&nbsp;&nbsp;&nbsp;Sign Out</button>
+        <button class="dropdown-item" type="button" id="toAdmin"><i
+            class="material-icons">badge</i>&nbsp;&nbsp;&nbsp;Admin</button>
       </div>
     </div>
   </nav>
-  <div id="mainPage" class="container page-container">
-    <h1 id="mainPageHeader">Admin</h1>
+  <div id="adminPage" class="container page-container">
+    <h1 id="mainPageHeader">Admin Page</h1>
+    <div id="no-access">
+      <img class="no-access" id="lockImg" src="images/lock.png" alt="Access Denied" />
+      <h2 class="no-access" id="noPermissionHeader">You don't have permission to view this page.</h2>
+      <p class="no-access" id="noPermissionText">If you believe this is an error, please use the request access button
+        below.</p>
+      <a role="button" id="reqAccess" class="no-access btn btn-warning btn-lg"
+        href="mailto:rosenas@rose-hulman.edu?cc=hawkinwd@rose-hulman.edu&subject=IM Fantasy Football Admin Access">Click
+        Here to Request Permission</a>
+      <br><br>
+    </div>
+    <div id="access">
+      Add Score:
+      <div class="row justify-content-center">
+        <!-- <div class="col-3"></div> -->
+        <div class="col-8 form-group">
+          <label for="addScorePlayerName" class="bmd-label-floating">player name</label>
+          <input type="text" class="form-control" id="addScorePlayerName">
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <!-- <div class="col-3"></div> -->
+        <div class="col-8 form-group">
+          <label for="addScoreWeek" class="bmd-label-floating">week</label>
+          <input type="text" class="form-control" id="addScoreWeek">
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-2"></div>
+        <div class="col-8 form-group">
+          <label for="addScoreScore" class="bmd-label-floating">score</label>
+          <input type="text" class="form-control" id="addScoreScore">
+        </div>
+        <span class="col-2 form-group bmd-form-group">
+          <button id="addScoreButton" type="button" class="btn btn-primary">Add</button>
+        </span>
+      </div>
+    </div>
   </div>
   <script src="scripts/jquery.min.js"></script>
   <script src="scripts/popper.js"></script>
