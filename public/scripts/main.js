@@ -201,7 +201,7 @@ rhit.FbAuthManager = class {
 
 rhit.checkForRedirects = function () {
 	if (document.querySelector("#loginPage") && rhit.fbAuthManager.isSignedIn) {
-		window.location.href = "/index.html";
+		window.location.href = "/settings.html";
 	}
 	if (!document.querySelector("#loginPage") && !rhit.fbAuthManager.isSignedIn) {
 		window.location.href = "/login.html";
@@ -498,7 +498,7 @@ rhit.myTeamPageController = class {
 
 		return htmlToElement(`
 		<div class="row player">
-			<div class="col-9 col-lg-10">
+			<div class="col-7 col-lg-9">
 				<div>
 					<h1 style="padding-bottom: 20px">${player.name}</h1>
 					<div>  
@@ -506,7 +506,7 @@ rhit.myTeamPageController = class {
 					</div>
 				</div>
 			</div>
-			<div class="col-3 col-lg-2 my-auto">
+			<div class="col-5 col-lg-3 my-auto">
 				<h1>Score: <span id="${player.name.replace(" ", "-")}" class="score">${player.score}</span> </h1)
 			</div>
 		</div>
@@ -526,7 +526,7 @@ rhit.myTeamPageController = class {
 			const p = rhit.FbMyTeamManager.team[i];
 			//console.log(scoreManager.getScores());
 			if (p.score) {
-				score.innerHTML = parseInt(score.innerHTML) + p.score;
+				score.innerHTML = parseInt(score.innerHTML) + parseInt(p.score);
 			}
 			const newCard = this._createCard(p);
 
@@ -794,7 +794,7 @@ rhit.main = function () {
 
 rhit.startFirebaseUI = function () {
 	var uiConfig = {
-		signInSuccessUrl: '/index.html',
+		signInSuccessUrl: '/settings.html',
 		signInOptions: [
 			firebase.auth.GoogleAuthProvider.PROVIDER_ID,
 			firebase.auth.EmailAuthProvider.PROVIDER_ID,
