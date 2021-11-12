@@ -82,6 +82,7 @@ rhit.SettingsPageController = class {
 					});
 					// console.log("used set, think I cleared everything");
 				})
+
 		})
 
 		document.querySelector("#name").addEventListener("change", () => {
@@ -120,6 +121,10 @@ rhit.AdminPageController = class {
 		});
 		document.querySelector("#addScoreButton").onclick = (event) => {
 			rhit.FbAdminManager.addScore(document.querySelector("#addScorePlayerName").value, document.querySelector("#addScoreScore").value)
+			document.querySelector("#addScorePlayerName").value = "";
+			document.querySelector("#addScoreScore").value = "";	
+
+			
 		}
 	}
 }
