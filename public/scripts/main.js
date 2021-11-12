@@ -58,9 +58,14 @@ rhit.SettingsPageController = class {
 	constructor() {
 		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_USERS).doc(rhit.fbAuthManager.uid);
 		this._ref.get().then((doc) => {
-			if (doc.exists && doc.data().teamName) {
-				document.querySelector("#teamName").value = doc.data().teamName;
-				// console.log("Document data:", doc.data());
+			if (doc.exists) {
+				if (doc.data().teamName) {
+					document.querySelector("#teamName").value = doc.data().teamName;
+					// console.log("Document data:", doc.data());
+				}
+				if (doc.data().displayName) {
+					document.querySelector("#name").value = doc.data().displayName;
+				}
 			} else {
 				console.log("No such document!");
 			}
@@ -76,6 +81,17 @@ rhit.SettingsPageController = class {
 						["teamName"]: document.querySelector("#teamName").value,
 					});
 					// console.log("used set, think I cleared everything");
+				})
+		})
+
+		document.querySelector("#name").addEventListener("change", () => {
+			this._ref.update({
+				["displayName"]: document.querySelector("#name").value,
+			})
+				.catch((error) => {
+					this._ref.set({
+						["displayName"]: document.querySelector("#name").value,
+					});
 				})
 		})
 
@@ -381,16 +397,15 @@ rhit.myTeamPageController = class {
 
 		rhit.FbMyTeamManager._ref.get().then((doc) => {
 			if (doc.exists) {
-				if (doc.data().teamName) {
-					document.querySelector("#myTeam").innerHTML = doc.data().teamName;
-				} else if (rhit.fbAuthManager.uid.length > 10) {
-					document.querySelector("#myTeam").innerHTML = rhit.fbAuthManager.displayName + "'s Team";
-				} else {
-					document.querySelector("#myTeam").innerHTML = rhit.fbAuthManager.uid + "'s Team";
+				if (doc.data().teamName && doc.data().displayName) {
+					document.querySelector("#myTeam").innerHTML = doc.data().displayName + "'s " + doc.data().teamName;
+				} else if (doc.data().displayName) {
+					document.querySelector("#myTeam").innerHTML = doc.data().displayName + "'s Team";
+				} else if (doc.data().teamName) {
+					document.querySelector("#myTeam").innerHTML = "The " + doc.data().teamName;
 					// console.log("Document data:", doc.data());
 				}
 			} else {
-				console.log("tried to make name: ", doc.data().teamName);
 				console.log("No such document!");
 			}
 		}).catch((error) => {
