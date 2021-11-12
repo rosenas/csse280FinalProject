@@ -196,19 +196,9 @@ rhit.addPlayersPageController = class {
 	constructor() {
 		//console.log("created AddPlayersPageController");
 		this.teams = [];
-		document.querySelector("#playerFilter").addEventListener('change', function() {
-			console.log(document.querySelector("#playerListContainer").childElementCount);
-			for(let i = 0; i < document.querySelector("#playerListContainer").childElementCount; i++) {
-				let team = document.querySelector("#playerListContainer").childNodes[i].querySelector("#team").innerHTML;
-				if(document.querySelector("#playerFilter").value == "all") {
-					document.querySelector("#playerListContainer").childNodes[i].style.display = "block";
-				} else if(document.querySelector("#playerFilter").value != team) {
-					document.querySelector("#playerListContainer").childNodes[i].style.display = "none";
-				} else {
-					document.querySelector("#playerListContainer").childNodes[i].style.display = "block";
-				}
-			}
-		})
+		document.querySelector("#playerFilter").addEventListener('change', () => {
+			this.updateList();
+		});
 
 		rhit.FbAddPlayersManager.beginListening(this.updateList.bind(this));
 		//rhit.FbMyTeamManager.beginListening(rhit.myTeamPageController.updateList.bind(this));
@@ -246,9 +236,13 @@ rhit.addPlayersPageController = class {
 					//console.log(`you clicked on ${p.name}`);
 					rhit.FbAddPlayersManager.addPlayer(p.name);
 				}
-				newList.appendChild(newCard);
+				if (document.querySelector("#playerFilter").value == "all") {
+					newList.appendChild(newCard);
+				} else if (document.querySelector("#playerFilter").value == p.team) {
+					newList.appendChild(newCard);
+				}
 
-				if(!this.teams.includes(p.team)) {
+				if (!this.teams.includes(p.team)) {
 					this.teams.push(p.team);
 					let option = document.createElement("option");
 					option.text = p.team;
@@ -402,7 +396,7 @@ rhit.myTeamPageController = class {
 		}).catch((error) => {
 			console.log("Error getting document:", error);
 		});;
-		
+
 	}
 
 	_createCard(player) {
@@ -435,20 +429,20 @@ rhit.myTeamPageController = class {
 			//console.log(rhit.FbMyTeamManager.team[i]);
 			const p = rhit.FbMyTeamManager.team[i];
 			//console.log(scoreManager.getScores());
-			
+
 			const newCard = this._createCard(p);
 
 
 			newCard.querySelector(".drop").onclick = (event) => {
-			//console.log(`you clicked on ${p}`);
-			rhit.FbMyTeamManager.dropPlayer(p);
+				//console.log(`you clicked on ${p}`);
+				rhit.FbMyTeamManager.dropPlayer(p);
 
 			}
 			newList.appendChild(newCard);
-			
-			
 
-			
+
+
+
 		}
 		const oldList = document.querySelector("#playerListContainer");
 		oldList.removeAttribute("id");
@@ -456,7 +450,7 @@ rhit.myTeamPageController = class {
 
 		oldList.parentElement.appendChild(newList);
 
-		
+
 
 	}
 
@@ -490,7 +484,7 @@ rhit.FbMyTeamManager = class {
 		this.uid = uid;
 		this._unsubscribe = null;
 		this.team = this.getTeam();
-		this.scores= [];
+		this.scores = [];
 	}
 	beginListening(changeListener) {
 
@@ -528,36 +522,36 @@ rhit.FbMyTeamManager = class {
 	}
 
 
-	scorePush(team, i){
+	scorePush(team, i) {
 		//console.log(team.length);
 		//console.log(i);
-		if(i >= team.length){
+		if (i >= team.length) {
 			return;
 		}
-		else{
+		else {
 			this.scores.push(this.getScores(this.team[i]));
 			setTimeout(() => {
-				return this.scorePush(team, i+1);
+				return this.scorePush(team, i + 1);
 			})
-			
-			
+
+
 		}
 
-	}	
+	}
 
 	getScores(player) {
 		this._ref2.get().then((snapshot) => {
 			snapshot.forEach((doc) => {
-				if(player == doc.data().name){
+				if (player == doc.data().name) {
 					//console.log(doc.data());
 					//console.log(doc.data().score);
-					
+
 					document.querySelector(`#${player.replace(" ", "-")}`).innerHTML = doc.data().score;
-					return {"name": player, "score": doc.data().score};	
+					return { "name": player, "score": doc.data().score };
 				}
 			})
 		})
-		
+
 	}
 
 
@@ -596,7 +590,7 @@ rhit.FbMyTeamManager = class {
 // 				}
 // 			})
 // 		})
- 
+
 // 	}
 // }
 
