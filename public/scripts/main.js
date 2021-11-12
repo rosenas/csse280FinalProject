@@ -464,7 +464,10 @@ rhit.myTeamPageController = class {
 				} else if (doc.data().teamName) {
 					document.querySelector("#myTeam").innerHTML = "The " + doc.data().teamName;
 					// console.log("Document data:", doc.data());
+				}else{
+					document.querySelector("#myTeam").innerHTML = rhit.fbAuthManager.uid + "'s Team";
 				}
+
 			} else {
 				console.log("No such document!");
 			}
