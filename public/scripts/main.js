@@ -493,9 +493,6 @@ rhit.myTeamPageController = class {
 	}
 
 
-	updateScore(){
-	}
-
 
 	_createCard(player) {
 		//console.log('player :>> ', player);
@@ -571,14 +568,14 @@ rhit.FbMyTeamManager = class {
 		this._documentSnapshots = [];
 		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
 		 this._ref2 = firebase.firestore().collection("Players");
-		// this._ref.update({
-		// 	["Init"]: null
-		// }).catch((error) => {
-		// 	this._ref.set({
-		// 		["Init"]: null
-		// 	});
-		// 	console.log(error);
-		// })
+		 this._ref.update({
+			["Init"]: null
+		}).catch((error) => {
+			this._ref.set({
+				["Init"]: null
+			});
+			console.log(error);
+		})
 		this.uid = uid;
 		this._unsubscribe = null;
 		this.team = [];
@@ -650,55 +647,55 @@ rhit.FbMyTeamManager = class {
 					})
 				}
 				
-				console.log(this.team);
+				//console.log(this.team);
 			}
 		})
 
 	}
 
 
-	scorePush(team, i) {
-		//console.log(team.length);
-		//console.log(i);
+	// scorePush(team, i) {
+	// 	//console.log(team.length);
+	// 	//console.log(i);
 		
-		if(i >= team.length){
+	// 	if(i >= team.length){
 
-		}
-		else {
-			this.scores.push(this.getScores(this.team[i]));
-			setTimeout(() => {
-				return this.scorePush(team, i + 1);
-			})
+	// 	}
+	// 	else {
+	// 		this.scores.push(this.getScores(this.team[i]));
+	// 		setTimeout(() => {
+	// 			return this.scorePush(team, i + 1);
+	// 		})
 
 
-		}
+	// 	}
 
-	}
+	// }
 
-	getScores(player) {	
-		this._ref2.get().then((snapshot) => {
-			snapshot.forEach((doc) => {
-				if (player == doc.data().name) {
-					//console.log(doc.data());
-					//console.log(doc.data().score);
+	// getScores(player) {	
+	// 	this._ref2.get().then((snapshot) => {
+	// 		snapshot.forEach((doc) => {
+	// 			if (player == doc.data().name) {
+	// 				//console.log(doc.data());
+	// 				//console.log(doc.data().score);
 
-					document.querySelector(`#${player.replace(" ", "-")}`).innerHTML = doc.data().score;
+	// 				document.querySelector(`#${player.replace(" ", "-")}`).innerHTML = doc.data().score;
 
-					console.log(document.querySelector(`#${player.replace(" ", "-")}`).innerHTML);
-					if(doc.data().score != undefined){
-						this.total+= parseInt(doc.data().score);
-						console.log(this.total);
-						document.querySelector("#score").innerHTML = "Total Team Score: " + this.total;
-					}
+	// 				console.log(document.querySelector(`#${player.replace(" ", "-")}`).innerHTML);
+	// 				if(doc.data().score != undefined){
+	// 					this.total+= parseInt(doc.data().score);
+	// 					console.log(this.total);
+	// 					document.querySelector("#score").innerHTML = "Total Team Score: " + this.total;
+	// 				}
 					
-					//this.total = 0;
-					return {"name": player, "score": doc.data().score};	
+	// 				//this.total = 0;
+	// 				return {"name": player, "score": doc.data().score};	
 
-				}
-			})
-		})
+	// 			}
+	// 		})
+	// 	})
 
-	}
+	// }
 
 
 
@@ -716,7 +713,6 @@ rhit.FbMyTeamManager = class {
 
 		this._documentSnapshots.forEach((doc) => {
 			if(doc.data().name == player){
-				let id = doc.id;
 				let index = doc.data().owners.indexOf(player)
 				let owners = doc.data().owners;
 				owners.splice(index,1);
