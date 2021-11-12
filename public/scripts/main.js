@@ -438,28 +438,30 @@ rhit.FbAddPlayersManager = class {
 rhit.myTeamPageController = class {
 	constructor() {
 
-		setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
+		//setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
 
-		
+	
+
+		rhit.FbMyTeamManager.beginListening(this.updateList.bind(this));
 
 
-		// rhit.FbMyTeamManager._ref.get().then((doc) => {
-		// 	if (doc.exists) {
-		// 		if (doc.data().teamName) {
-		// 			document.querySelector("#myTeam").innerHTML = doc.data().teamName;
-		// 		} else if (rhit.fbAuthManager.uid.length > 10) {
-		// 			document.querySelector("#myTeam").innerHTML = rhit.fbAuthManager.displayName + "'s Team";
-		// 		} else {
-		// 			document.querySelector("#myTeam").innerHTML = rhit.fbAuthManager.uid + "'s Team";
-		// 			// console.log("Document data:", doc.data());
-		// 		}
-		// 	} else {
-		// 		console.log("tried to make name: ", doc.data().teamName);
-		// 		console.log("No such document!");
-		// 	}
-		// }).catch((error) => {
-		// 	console.log("Error getting document:", error);
-		// });;
+		rhit.FbMyTeamManager._ref.get().then((doc) => {
+			if (doc.exists) {
+				if (doc.data().teamName) {
+					document.querySelector("#myTeam").innerHTML = doc.data().teamName;
+				} else if (rhit.fbAuthManager.uid.length > 10) {
+					document.querySelector("#myTeam").innerHTML = rhit.fbAuthManager.displayName + "'s Team";
+				} else {
+					document.querySelector("#myTeam").innerHTML = rhit.fbAuthManager.uid + "'s Team";
+					// console.log("Document data:", doc.data());
+				}
+			} else {
+				console.log("tried to make name: ", doc.data().teamName);
+				console.log("No such document!");
+			}
+		}).catch((error) => {
+			console.log("Error getting document:", error);
+		});;
 
 		// this.event = new Event('getScore');	
 
@@ -498,7 +500,7 @@ rhit.myTeamPageController = class {
 
 		return htmlToElement(`
 		<div class="row player">
-			<div class="col-10">
+			<div class="col-9 col-lg-10">
 				<div>
 					<h1 style="padding-bottom: 20px">${player.name}</h1>
 					<div>  
@@ -506,7 +508,7 @@ rhit.myTeamPageController = class {
 					</div>
 				</div>
 			</div>
-			<div class="col-2 my-auto">
+			<div class="col-3 col-lg-2 my-auto">
 				<h1>Score: <span id="${player.name.replace(" ", "-")}" class="score">${player.score}</span> </h1)
 			</div>
 		</div>
@@ -560,7 +562,7 @@ rhit.FbMyTeamManager = class {
 		//console.log("created FbMyTeamManager");
 		this._documentSnapshot = {};
 		this._documentSnapshots = [];
-		//this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
+		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
 		 this._ref2 = firebase.firestore().collection("Players");
 		// this._ref.update({
 		// 	["Init"]: null
@@ -627,11 +629,19 @@ rhit.FbMyTeamManager = class {
 			
 
 			if(doc.data().owners && doc.data().owners.includes(rhit.fbAuthManager.uid) && !this.team.includes({'name': doc.data().name, 'score': doc.data().score})){
-				this.team.push({
-					'name': doc.data().name,
-					'score': doc.data().score
+				if(doc.data().score === undefined){
+					this.team.push({
+						'name': doc.data().name,
+						'score': 0
+					})
 				}
-					)
+				else{
+					this.team.push({
+						'name': doc.data().name,
+						'score': doc.data().score
+					})
+				}
+				
 				console.log(this.team);
 			}
 		})
