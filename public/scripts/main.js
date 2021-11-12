@@ -82,6 +82,7 @@ rhit.SettingsPageController = class {
 					});
 					// console.log("used set, think I cleared everything");
 				})
+
 		})
 
 		document.querySelector("#name").addEventListener("change", () => {
@@ -120,6 +121,10 @@ rhit.AdminPageController = class {
 		});
 		document.querySelector("#addScoreButton").onclick = (event) => {
 			rhit.FbAdminManager.addScore(document.querySelector("#addScorePlayerName").value, document.querySelector("#addScoreScore").value)
+			document.querySelector("#addScorePlayerName").value = "";
+			document.querySelector("#addScoreScore").value = "";	
+
+			
 		}
 	}
 }
@@ -221,8 +226,7 @@ rhit.initializePage = function () {
 		//testing
 		rhit.FbMyTeamManager = new rhit.FbMyTeamManager(rhit.fbAuthManager.uid);
 		let myTeamPageController = new rhit.myTeamPageController();
-		setTimeout(10000);
-		myTeamPageController.updateScore();
+		
 	
 		
 	}
@@ -461,7 +465,10 @@ rhit.myTeamPageController = class {
 				} else if (doc.data().teamName) {
 					document.querySelector("#myTeam").innerHTML = "The " + doc.data().teamName;
 					// console.log("Document data:", doc.data());
+				}else{
+					document.querySelector("#myTeam").innerHTML = rhit.fbAuthManager.uid + "'s Team";
 				}
+
 			} else {
 				console.log("No such document!");
 			}
