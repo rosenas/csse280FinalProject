@@ -118,6 +118,33 @@ rhit.AdminPageController = class {
 				document.querySelector("#access").style.display = "none";
 			}
 		});
+		document.querySelector("#addScoreButton").onclick = (event) => {
+			rhit.FbAdminManager.addScore(document.querySelector("#addScorePlayerName").value, document.querySelector("#addScoreScore").value)
+		}
+	}
+}
+
+
+rhit.FbAdminManager = class {
+	constructor() {
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_PLAYERS);
+		this._documentSnapshot = {};
+		this.id = "";
+	}
+
+	addScore(player, score){
+		this._ref.get().then((snapshot) => {
+			snapshot.forEach((doc) => {
+				if(player === doc.data().name){
+					this._documentSnapshot = doc;
+					this.id = doc.id;
+					firebase.firestore().collection(rhit.FB_COLLECTION_PLAYERS).doc(this.id).update({
+						["score"]: score
+					})
+				}
+			})
+		})
+
 	}
 }
 
@@ -193,7 +220,11 @@ rhit.initializePage = function () {
 		//console.log(rhit.fbAuthManager.uid);
 		//testing
 		rhit.FbMyTeamManager = new rhit.FbMyTeamManager(rhit.fbAuthManager.uid);
-		new rhit.myTeamPageController();
+		let myTeamPageController = new rhit.myTeamPageController();
+		setTimeout(10000);
+		myTeamPageController.updateScore();
+	
+		
 	}
 	if (document.querySelector("#settingsPage")) {
 		new rhit.SettingsPageController();
@@ -202,7 +233,9 @@ rhit.initializePage = function () {
 		new rhit.MainPageController();
 	}
 	if (document.querySelector("#adminPage")) {
+		rhit.FbAdminManager = new rhit.FbAdminManager();
 		new rhit.AdminPageController();
+
 	}
 
 
@@ -281,10 +314,11 @@ rhit.addPlayersPageController = class {
 }
 
 rhit.player = class {
-	constructor(id, name, team) {
+	constructor(id, name, team, owners) {
 		this.id = id;
 		this.name = name;
 		this.team = team;
+		this.owners = owners;
 	}
 }
 
@@ -339,44 +373,67 @@ rhit.FbAddPlayersManager = class {
 	getPlayerAtIndex(index) {
 		const docSnapshot = this._documentSnapshots[index];
 		//console.log(this.team);
-		const p = new rhit.player(docSnapshot.id, docSnapshot.get("name"), docSnapshot.get("team"));
+		const p = new rhit.player(docSnapshot.id, docSnapshot.get("name"), docSnapshot.get("team"), docSnapshot.get("owners"));
 		return this.checkIfOnTeam(p);
 	}
 	addPlayer(player) {
 		//console.log(this._documentSnapshot);
 		let team = this._documentSnapshot.data().team;
 
-		if (team && team.includes(player)) {
-
-		}
-		else {
-			if (!team) {
-				team = [];
-			}
-			team.push(player)
-			this._ref2.update({
-				['team']: team
-			}).catch((error) => {
-				this._ref2.set({
-					['team']: team
+		this._documentSnapshots.forEach((doc) => {
+			if(doc.data().name === player){
+				let owners = doc.data().owners;
+				if(!owners){
+					owners = [];
+				}
+				owners.push(rhit.fbAuthManager.uid);		
+				let id = doc.id;
+				this._ref.doc(id).update({
+					['owners']: owners
 				})
-			})
-		}
+			}
+			
+		})
+
+
+		// if (team && team.includes(player)) {
+
+		// }
+		// else {
+		// 	if (!team) {
+		// 		team = [];
+		// 	}
+		// 	if(team.length > 7){
+		// 		alert("You already have a full roster\nPlease drop a player before adding any more");
+		// 	}
+		// 	else{
+			
+		// 		team.push(player)
+		// 		// this._ref2.update({
+		// 		// 	['team']: team
+		// 		// }).catch((error) => {
+		// 		// 	this._ref2.set({
+		// 		// 		['team']: team
+		// 		// 	})
+		// 		// })
+		// 	}
+		
+		// }
 
 
 
 	}
 
 	checkIfOnTeam(player) {
-		if (!this.team) {
+		if (!player.owners) {
 			return player;
 		}
 
 
-		if (!this.team.includes(player.name)) {
+		if (!player.owners.includes(rhit.fbAuthManager.uid)) {
 			return player;
 		} else {
-			return new rhit.player(0, "hidden", "hidden")
+			return new rhit.player(0, "hidden", "hidden", null)
 		}
 
 
@@ -388,8 +445,11 @@ rhit.FbAddPlayersManager = class {
 rhit.myTeamPageController = class {
 	constructor() {
 
-		setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
+		//setTimeout(rhit.FbMyTeamManager.beginListening(this.updateList.bind(this)), 2000);
 
+	
+
+		rhit.FbMyTeamManager.beginListening(this.updateList.bind(this));
 
 
 		rhit.FbMyTeamManager._ref.get().then((doc) => {
@@ -409,7 +469,27 @@ rhit.myTeamPageController = class {
 			console.log("Error getting document:", error);
 		});;
 
+
+		// this.event = new Event('getScore');	
+
+		// document.querySelector("#submitTeam").addEventListener('getScore', (event) => {
+		// 	let scores = document.querySelectorAll(".score");
+
+		// 	let total = 0;
+
+		// 	scores.forEach((score) => {
+		// 			 console.log(score);
+		// 		if(score.innerHTML != "undefined"){
+		// 			total+=parseInt(score.innerHTML);
+		// 		}
+				
+		// 	})
+
+		// 	document.querySelector("#score").innerHTML = "Total Team Score: " + total;
+		// 	}, false) 
 	}
+
+
 
 	_createCard(player) {
 		//console.log('player :>> ', player);
@@ -418,19 +498,21 @@ rhit.myTeamPageController = class {
 
 		return htmlToElement(`
 		<div class="row player">
-			<div class="col-10">
+			<div class="col-9 col-lg-10">
 				<div>
-					<h1 style="padding-bottom: 20px">${player}</h1>
+					<h1 style="padding-bottom: 20px">${player.name}</h1>
 					<div>  
 						<button class="btn btn-raised drop">drop</button>
 					</div>
 				</div>
 			</div>
-			<div class="col-2 my-auto">
-				<h1>Score: <span id="${player.replace(" ", "-")}" class="score">0</span> </h1)
+			<div class="col-3 col-lg-2 my-auto">
+				<h1>Score: <span id="${player.name.replace(" ", "-")}" class="score">${player.score}</span> </h1)
 			</div>
 		</div>
 		`);
+
+		
 
 	}
 
@@ -449,8 +531,12 @@ rhit.myTeamPageController = class {
 			const newCard = this._createCard(p);
 
 			newCard.querySelector(".drop").onclick = (event) => {
-				//console.log(`you clicked on ${p}`);
-				rhit.FbMyTeamManager.dropPlayer(p);
+
+			//console.log(`you clicked on ${p}`);
+			rhit.FbMyTeamManager.dropPlayer(p.name);
+
+
+
 			}
 			newList.appendChild(newCard);
 		}
@@ -462,16 +548,8 @@ rhit.myTeamPageController = class {
 
 
 
-
 	}
-
-	// updateScore(team){
-	// 	team.forEach((player) => {
-	// 		rhit.FbScoreManager = new rhit.FbScoreManager(player);
-	// 		console.log(rhit.FbScoreManager.Scores);
-	// 		document.querySelector(`#${player}`).innerHTML = rhit.FbScoreManager.Scores 
-	// 	})
-	// }
+		
 
 
 
@@ -482,9 +560,10 @@ rhit.FbMyTeamManager = class {
 	constructor(uid) {
 		//console.log("created FbMyTeamManager");
 		this._documentSnapshot = {};
+		this._documentSnapshots = [];
 		this._ref = firebase.firestore().collection("Users").doc(rhit.fbAuthManager.uid);
-		this._ref2 = firebase.firestore().collection("Players");
-		this._ref.update({
+		 this._ref2 = firebase.firestore().collection("Players");
+		 this._ref.update({
 			["Init"]: null
 		}).catch((error) => {
 			this._ref.set({
@@ -494,89 +573,149 @@ rhit.FbMyTeamManager = class {
 		})
 		this.uid = uid;
 		this._unsubscribe = null;
-		this.team = this.getTeam();
-		this.scores = [];
+		this.team = [];
+		this.scores= [];
+		this.total = 0;
+
+		
+
+
 	}
 	beginListening(changeListener) {
 
 
-		this._unsubscribe = this._ref.onSnapshot((doc) => {
-			if (doc.exists) {
-				//console.log("Document data:", doc.data());
-				this._documentSnapshot = doc;
-				changeListener();
-			} else {
-				console.log("No such document!");
-			}
-		});
+		// this._unsubscribe = this._ref.onSnapshot((doc) => {
+		// 	if (doc.exists) {
+		// 		//console.log("Document data:", doc.data());
+		// 		this._documentSnapshot = doc;
+				
+		// 		changeListener();
+		// 	} else {
+		// 		console.log("No such document!");
+		// 	}
+		// });
+
+
+		this._unsubscribe = this._ref2.onSnapshot((querySnapshot) => {
+			this._documentSnapshots = querySnapshot.docs;
+			this.getTeam();
+			changeListener();
+		})
 	}
 	stopListening() {
 		this._unsubscribe();
 	}
 
 	getTeam() {
+		// this._ref.onSnapshot((doc) => {
+		// 	this.team = doc.data().team;
+		// 	// doc.data().team.forEach((player) => {
+		// 	// 	console.log(this.getScores(player));
+		// 	// 	this.scores.push(this.getScores(player));
+		// 	// })
 
-		this._ref.onSnapshot((doc) => {
-			this.team = doc.data().team;
-			// doc.data().team.forEach((player) => {
-			// 	console.log(this.getScores(player));
-			// 	this.scores.push(this.getScores(player));
-			// })
+		// 	//this.scores.push(this.getScores(this.team[0]));
+	
+			
+		// 	this.scorePush(doc.data().team,0);
+			
+			
 
-			//this.scores.push(this.getScores(this.team[0]));
+		// 	//return this.team
+		// })
+		this.team = [];	
+		this._documentSnapshots.forEach((doc) => {
+			//console.log(doc.data().owners);
+			
 
-			this.scorePush(doc.data().team, 0);
-
-			return this.team
-		})
-
-	}
-
-
-	scorePush(team, i) {
-		//console.log(team.length);
-		//console.log(i);
-		if (i >= team.length) {
-			return;
-		}
-		else {
-			this.scores.push(this.getScores(this.team[i]));
-			setTimeout(() => {
-				return this.scorePush(team, i + 1);
-			})
-
-
-		}
-
-	}
-
-	getScores(player) {
-		this._ref2.get().then((snapshot) => {
-			snapshot.forEach((doc) => {
-				if (player == doc.data().name) {
-					//console.log(doc.data());
-					//console.log(doc.data().score);
-
-					document.querySelector(`#${player.replace(" ", "-")}`).innerHTML = doc.data().score;
-					return { "name": player, "score": doc.data().score };
+			if(doc.data().owners && doc.data().owners.includes(rhit.fbAuthManager.uid) && !this.team.includes({'name': doc.data().name, 'score': doc.data().score})){
+				if(doc.data().score === undefined){
+					this.team.push({
+						'name': doc.data().name,
+						'score': 0
+					})
 				}
-			})
+				else{
+					this.team.push({
+						'name': doc.data().name,
+						'score': doc.data().score
+					})
+				}
+				
+				//console.log(this.team);
+			}
 		})
 
 	}
+
+
+	// scorePush(team, i) {
+	// 	//console.log(team.length);
+	// 	//console.log(i);
+		
+	// 	if(i >= team.length){
+
+	// 	}
+	// 	else {
+	// 		this.scores.push(this.getScores(this.team[i]));
+	// 		setTimeout(() => {
+	// 			return this.scorePush(team, i + 1);
+	// 		})
+
+
+	// 	}
+
+	// }
+
+	// getScores(player) {	
+	// 	this._ref2.get().then((snapshot) => {
+	// 		snapshot.forEach((doc) => {
+	// 			if (player == doc.data().name) {
+	// 				//console.log(doc.data());
+	// 				//console.log(doc.data().score);
+
+	// 				document.querySelector(`#${player.replace(" ", "-")}`).innerHTML = doc.data().score;
+
+	// 				console.log(document.querySelector(`#${player.replace(" ", "-")}`).innerHTML);
+	// 				if(doc.data().score != undefined){
+	// 					this.total+= parseInt(doc.data().score);
+	// 					console.log(this.total);
+	// 					document.querySelector("#score").innerHTML = "Total Team Score: " + this.total;
+	// 				}
+					
+	// 				//this.total = 0;
+	// 				return {"name": player, "score": doc.data().score};	
+
+	// 			}
+	// 		})
+	// 	})
+
+	// }
+
 
 
 	dropPlayer(player) {
-		this.getTeam();
-		let index = this.team.indexOf(player)
-		this.team.splice(index, 1);
+		//this.getTeam();
+		this.total = 0;
 		//console.log(this.team);
-		this._ref.update({
-			['team']: this.team
-		}).catch((error) => {
-			this._ref.set({
-				['team']: this.team
-			})
+		// this._ref.update({
+		// 	['team']: this.team
+		// }).catch((error) => {
+		// 	this._ref.set({
+		// 		['team']: this.team
+		// 	})
+		// })
+
+		this._documentSnapshots.forEach((doc) => {
+			if(doc.data().name == player){
+				let index = doc.data().owners.indexOf(player)
+				let owners = doc.data().owners;
+				owners.splice(index,1);
+				this.team.splice(this.team.indexOf({'name':player, 'score': doc.data().score}));
+				this._ref2.doc(doc.id).update({
+					['owners']: owners
+				})
+			}
 		})
 	}
 
