@@ -307,10 +307,11 @@ rhit.addPlayersPageController = class {
 
 
 rhit.player = class {
-	constructor(id, name, team) {
+	constructor(id, name, team, owners) {
 		this.id = id;
 		this.name = name;
 		this.team = team;
+		this.owners = owners;
 	}
 }
 
@@ -365,7 +366,7 @@ rhit.FbAddPlayersManager = class {
 	getPlayerAtIndex(index) {
 		const docSnapshot = this._documentSnapshots[index];
 		//console.log(this.team);
-		const p = new rhit.player(docSnapshot.id, docSnapshot.get("name"), docSnapshot.get("team"));
+		const p = new rhit.player(docSnapshot.id, docSnapshot.get("name"), docSnapshot.get("team"), docSnapshot.get("owners"));
 		return this.checkIfOnTeam(p);
 	}
 	addPlayer(player) {
@@ -387,47 +388,45 @@ rhit.FbAddPlayersManager = class {
 			
 		})
 
-		
 
+		// if (team && team.includes(player)) {
 
-		if (team && team.includes(player)) {
-
-		}
-		else {
-			if (!team) {
-				team = [];
-			}
-			if(team.length > 7){
-				alert("You already have a full roster\nPlease drop a player before adding any more");
-			}
-			else{
+		// }
+		// else {
+		// 	if (!team) {
+		// 		team = [];
+		// 	}
+		// 	if(team.length > 7){
+		// 		alert("You already have a full roster\nPlease drop a player before adding any more");
+		// 	}
+		// 	else{
 			
-				team.push(player)
-				this._ref2.update({
-					['team']: team
-				}).catch((error) => {
-					this._ref2.set({
-						['team']: team
-					})
-				})
-			}
+		// 		team.push(player)
+		// 		// this._ref2.update({
+		// 		// 	['team']: team
+		// 		// }).catch((error) => {
+		// 		// 	this._ref2.set({
+		// 		// 		['team']: team
+		// 		// 	})
+		// 		// })
+		// 	}
 		
-		}
+		// }
 
 
 
 	}
 
 	checkIfOnTeam(player) {
-		if (!this.team) {
+		if (!player.owners) {
 			return player;
 		}
 
 
-		if (!this.team.includes(player.name)) {
+		if (!player.owners.includes(rhit.fbAuthManager.uid)) {
 			return player;
 		} else {
-			return new rhit.player(0, "hidden", "hidden")
+			return new rhit.player(0, "hidden", "hidden", null)
 		}
 
 
