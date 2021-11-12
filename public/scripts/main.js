@@ -280,9 +280,6 @@ rhit.addPlayersPageController = class {
 	}
 }
 
-
-
-
 rhit.player = class {
 	constructor(id, name, team) {
 		this.id = id;
@@ -440,30 +437,29 @@ rhit.myTeamPageController = class {
 	updateList() {
 		//console.log("list updated");
 		const newList = htmlToElement('<div id="playerListContainer"></div>');
+		const score = document.querySelector("#totalScoreNum");
+		score.innerHTML = 0;
 		for (let i = 0; i < rhit.FbMyTeamManager.team.length; i++) {
 			//console.log(rhit.FbMyTeamManager.team[i]);
 			const p = rhit.FbMyTeamManager.team[i];
 			//console.log(scoreManager.getScores());
-
+			if (p.score) {
+				score.innerHTML = parseInt(score.innerHTML) + p.score;
+			}
 			const newCard = this._createCard(p);
-
 
 			newCard.querySelector(".drop").onclick = (event) => {
 				//console.log(`you clicked on ${p}`);
 				rhit.FbMyTeamManager.dropPlayer(p);
-
 			}
 			newList.appendChild(newCard);
-
-
-
-
 		}
 		const oldList = document.querySelector("#playerListContainer");
 		oldList.removeAttribute("id");
 		oldList.hidden = true;
 
 		oldList.parentElement.appendChild(newList);
+
 
 
 
