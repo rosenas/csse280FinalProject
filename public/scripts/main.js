@@ -221,8 +221,7 @@ rhit.initializePage = function () {
 		//testing
 		rhit.FbMyTeamManager = new rhit.FbMyTeamManager(rhit.fbAuthManager.uid);
 		let myTeamPageController = new rhit.myTeamPageController();
-		setTimeout(10000);
-		myTeamPageController.updateScore();
+		
 	
 		
 	}
